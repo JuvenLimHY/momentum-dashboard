@@ -34,6 +34,16 @@
       margin-bottom: 10px;
       text-shadow: 1px 1px 4px #000;
     }
+    .search-bar {
+      margin: 10px 0 20px;
+    }
+    .search-bar input[type="text"] {
+      padding: 10px;
+      font-size: 1rem;
+      width: 300px;
+      border: none;
+      border-radius: 5px;
+    }
     #quote-line {
       font-size: 1.5rem;
       margin-bottom: 30px;
@@ -115,11 +125,26 @@
       border-radius: 8px;
       font-size: 0.9rem;
     }
+    .spotify-player {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 80px;
+      z-index: 10;
+    }
   </style>
 </head>
 <body>
   <div class="overlay">
     <div id="clock"></div>
+
+    <div class="search-bar">
+      <form action="https://www.google.com/search" method="GET" target="_blank">
+        <input type="text" name="q" placeholder="Search Google...">
+      </form>
+    </div>
+
     <div id="quote-line">Loading quote...</div>
     <input type="text" id="focusInput" placeholder="What is your main goal for today?">
   </div>
@@ -140,13 +165,15 @@
 
   <div class="weather" id="weather">Loading weather...</div>
 
-  <div id="bottom-quote">“A time comes when you need to stop waiting for the person you want to become and start being the person you want to be.”</div>
+  <div id="bottom-quote"></div>
+
+  <div class="spotify-player">
+    <iframe style="border-radius:12px" src="https://open.spotify.com/embed/playlist/6uMxx2KtSJDt02QDP5JcPr?utm_source=generator&theme=0" width="100%" height="80" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
+  </div>
 
   <script>
-    // Background image
     document.body.style.backgroundImage = "url('https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1600&q=80')";
 
-    // Clock
     function updateClock() {
       const now = new Date();
       const time = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
@@ -155,25 +182,22 @@
     setInterval(updateClock, 1000);
     updateClock();
 
-    // Quote from API
-    fetch("https://api.quotable.io/random")
+    // Quote from motivational API (Adviceslip)
+    fetch("https://api.adviceslip.com/advice")
       .then(res => res.json())
       .then(data => {
-        document.getElementById("quote-line").textContent = data.content;
-        document.getElementById("bottom-quote").textContent = `— ${data.author}`;
+        document.getElementById("quote-line").textContent = data.slip.advice;
       })
       .catch(() => {
-        document.getElementById("quote-line").textContent = "Stay focused.";
+        document.getElementById("quote-line").textContent = "Stay motivated.";
       });
 
-    // Focus goal
     const focusInput = document.getElementById("focusInput");
     focusInput.value = localStorage.getItem("focus") || "";
     focusInput.addEventListener("change", () => {
       localStorage.setItem("focus", focusInput.value);
     });
 
-    // To-do list
     const todoInput = document.getElementById("todoInput");
     const todoList = document.getElementById("todoList");
     let todos = JSON.parse(localStorage.getItem("todos") || "[]");
@@ -203,7 +227,6 @@
 
     renderTodos();
 
-    // Pomodoro
     let pomodoroTime = 25 * 60;
     let pomodoroRunning = false;
     let pomodoroInterval;
@@ -238,7 +261,6 @@
 
     updatePomodoroDisplay();
 
-    // Weather
     const apiKey = "YOUR_OPENWEATHERMAP_API_KEY";
     const city = "Singapore";
 
