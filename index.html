@@ -88,12 +88,39 @@
       font-size: 0.9rem;
       color: #ccc;
     }
+    .pomodoro {
+      position: absolute;
+      left: 20px;
+      bottom: 80px;
+      background: rgba(0, 0, 0, 0.5);
+      padding: 15px;
+      border-radius: 10px;
+      text-align: center;
+    }
+    .pomodoro-timer {
+      font-size: 2rem;
+      margin-bottom: 10px;
+    }
+    .pomodoro-buttons button {
+      margin: 5px;
+      padding: 8px 12px;
+      font-size: 1rem;
+    }
+    .weather {
+      position: absolute;
+      top: 10px;
+      right: 20px;
+      background: rgba(0,0,0,0.5);
+      padding: 10px 15px;
+      border-radius: 8px;
+      font-size: 0.9rem;
+    }
   </style>
 </head>
 <body>
   <div class="overlay">
     <div id="clock"></div>
-    <div id="quote-line">Live with less.</div>
+    <div id="quote-line">Loading quote...</div>
     <input type="text" id="focusInput" placeholder="What is your main goal for today?">
   </div>
 
@@ -103,12 +130,21 @@
     <input type="text" id="todoInput" placeholder="New Task">
   </div>
 
+  <div class="pomodoro">
+    <div class="pomodoro-timer" id="pomodoroTimer">25:00</div>
+    <div class="pomodoro-buttons">
+      <button onclick="startPomodoro()">Start</button>
+      <button onclick="resetPomodoro()">Reset</button>
+    </div>
+  </div>
+
+  <div class="weather" id="weather">Loading weather...</div>
+
   <div id="bottom-quote">“A time comes when you need to stop waiting for the person you want to become and start being the person you want to be.”</div>
 
   <script>
     // Background image
-    fetch("https://source.unsplash.com/1600x900/?nature,landscape")
-      .then(res => document.body.style.backgroundImage = `url(${res.url})`);
+    document.body.style.backgroundImage = "url('https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1600&q=80')";
 
     // Clock
     function updateClock() {
@@ -118,6 +154,17 @@
     }
     setInterval(updateClock, 1000);
     updateClock();
+
+    // Quote from API
+    fetch("https://api.quotable.io/random")
+      .then(res => res.json())
+      .then(data => {
+        document.getElementById("quote-line").textContent = data.content;
+        document.getElementById("bottom-quote").textContent = `— ${data.author}`;
+      })
+      .catch(() => {
+        document.getElementById("quote-line").textContent = "Stay focused.";
+      });
 
     // Focus goal
     const focusInput = document.getElementById("focusInput");
@@ -155,6 +202,56 @@
     });
 
     renderTodos();
+
+    // Pomodoro
+    let pomodoroTime = 25 * 60;
+    let pomodoroRunning = false;
+    let pomodoroInterval;
+
+    function updatePomodoroDisplay() {
+      const minutes = Math.floor(pomodoroTime / 60).toString().padStart(2, '0');
+      const seconds = (pomodoroTime % 60).toString().padStart(2, '0');
+      document.getElementById("pomodoroTimer").textContent = `${minutes}:${seconds}`;
+    }
+
+    function startPomodoro() {
+      if (pomodoroRunning) return;
+      pomodoroRunning = true;
+      pomodoroInterval = setInterval(() => {
+        if (pomodoroTime > 0) {
+          pomodoroTime--;
+          updatePomodoroDisplay();
+        } else {
+          clearInterval(pomodoroInterval);
+          pomodoroRunning = false;
+          alert("Time's up!");
+        }
+      }, 1000);
+    }
+
+    function resetPomodoro() {
+      clearInterval(pomodoroInterval);
+      pomodoroRunning = false;
+      pomodoroTime = 25 * 60;
+      updatePomodoroDisplay();
+    }
+
+    updatePomodoroDisplay();
+
+    // Weather
+    const apiKey = "YOUR_OPENWEATHERMAP_API_KEY";
+    const city = "Singapore";
+
+    fetch(`https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}&units=metric`)
+      .then(res => res.json())
+      .then(data => {
+        const temp = Math.round(data.main.temp);
+        const condition = data.weather[0].main;
+        document.getElementById("weather").textContent = `${temp}°C · ${condition}`;
+      })
+      .catch(() => {
+        document.getElementById("weather").textContent = "Weather unavailable";
+      });
   </script>
 </body>
 </html>
