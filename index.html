@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>My Dashboard</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: sans-serif;
+      color: white;
+      text-align: center;
+      background-size: cover;
+      background-position: center;
+    }
+    .overlay {
+      background-color: rgba(0, 0, 0, 0.4);
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+    .clock {
+      font-size: 4rem;
+      margin: 10px 0;
+    }
+    .focus, .quote, .todo, .pomodoro {
+      margin: 10px;
+    }
+    input[type="text"] {
+      padding: 10px;
+      font-size: 1rem;
+    }
+    .pomodoro-timer {
+      font-size: 2rem;
+    }
+    .pomodoro-buttons button {
+      margin: 5px;
+      padding: 10px 15px;
+      font-size: 1rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="overlay">
+    <div class="clock" id="clock"></div>
+
+    <div class="focus">
+      <input type="text" id="focusInput" placeholder="What's your focus today?" />
+    </div>
+
+    <div class="pomodoro">
+      <div class="pomodoro-timer" id="pomodoroTimer">25:00</div>
+      <div class="pomodoro-buttons">
+        <button onclick="startPomodoro()">Start</button>
+        <button onclick="resetPomodoro()">Reset</button>
+      </div>
+    </div>
+
+    <div class="quote" id="quote">Loading quote...</div>
+
+    <div class="todo">
+      <input type="text" id="todoInput" placeholder="Add a to-do" />
+      <ul id="todoList"></ul>
+    </div>
+  </div>
+
+  <script>
+    // Set background image
+    fetch("https://source.unsplash.com/1600x900/?nature,landscape")
+      .then(res => document.body.style.backgroundImage = `url(${res.url})`);
+
+    // Clock
+    function updateClock() {
+      const now = new Date();
+      document.getElementById("clock").textContent = now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+    }
+    setInterval(updateClock, 1000);
+    updateClock();
+
+    // Focus input
+    const focusInput = document.getElementById("focusInput");
+    focusInput.value = localStorage.getItem("focus") || "";
+    focusInput.addEventListener("change", () => {
+      localStorage.setItem("focus", focusInput.value);
+    });
+
+    // Quote
+    fetch("https://zenquotes.io/api/random")
+      .then(res => res.json())
+      .then(data => {
+        document.getElementById("quote").textContent = `${data[0].q} — ${data[0].a}`;
+      })
+      .catch(() => {
+        document.getElementById("quote").textContent = "Stay motivated.";
+      });
+
+    // To-do list
+    const todoInput = document.getElementById("todoInput");
+    const todoList = document.getElementById("todoList");
+    let todos = JSON.parse(localStorage.getItem("todos") || "[]");
+
+    function renderTodos() {
+      todoList.innerHTML = "";
+      todos.forEach((todo, index) => {
+        const li = document.createElement("li");
+        li.textContent = todo;
+        li.style.cursor = "pointer";
+        li.addEventListener("click", () => {
+          todos.splice(index, 1);
+          localStorage.setItem("todos", JSON.stringify(todos));
+          renderTodos();
+        });
+        todoList.appendChild(li);
+      });
+    }
+
+    todoInput.addEventListener("keypress", e => {
+      if (e.key === "Enter" && todoInput.value.trim() !== "") {
+        todos.push(todoInput.value.trim());
+        localStorage.setItem("todos", JSON.stringify(todos));
+        todoInput.value = "";
+        renderTodos();
+      }
+    });
+
+    renderTodos();
+
+    // Pomodoro Timer
+    let pomodoroTime = 25 * 60;
+    let pomodoroRunning = false;
+    let pomodoroInterval;
+
+    function updatePomodoroDisplay() {
+      const minutes = Math.floor(pomodoroTime / 60).toString().padStart(2, '0');
+      const seconds = (pomodoroTime % 60).toString().padStart(2, '0');
+      document.getElementById("pomodoroTimer").textContent = `${minutes}:${seconds}`;
+    }
+
+    function startPomodoro() {
+      if (pomodoroRunning) return;
+      pomodoroRunning = true;
+      pomodoroInterval = setInterval(() => {
+        if (pomodoroTime > 0) {
+          pomodoroTime--;
+          updatePomodoroDisplay();
+        } else {
+          clearInterval(pomodoroInterval);
+          pomodoroRunning = false;
+          alert("Time's up!");
+        }
+      }, 1000);
+    }
+
+    function resetPomodoro() {
+      clearInterval(pomodoroInterval);
+      pomodoroRunning = false;
+      pomodoroTime = 25 * 60;
+      updatePomodoroDisplay();
+    }
+
+    updatePomodoroDisplay();
+  </script>
+</body>
+</html>
