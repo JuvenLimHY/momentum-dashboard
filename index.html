@@ -29,600 +29,308 @@
   --font-body: 'DM Sans', system-ui, sans-serif;
   --font-mono: 'JetBrains Mono', monospace;
 }
-
 [data-theme="light"] {
-  --bg: #f0efe8;
-  --bg2: #e8e7df;
-  --surface: rgba(0,0,0,0.04);
-  --surface-hover: rgba(0,0,0,0.07);
+  --bg: #f0efe8; --bg2: #e8e7df;
+  --surface: rgba(0,0,0,0.04); --surface-hover: rgba(0,0,0,0.07);
   --border: rgba(0,0,0,0.1);
   --text: #1a1a22;
-  --text-muted: rgba(26,26,34,0.5);
-  --text-subtle: rgba(26,26,34,0.25);
+  --text-muted: rgba(26,26,34,0.5); --text-subtle: rgba(26,26,34,0.25);
 }
-
-[data-accent="blue"]   { --accent: #60a5fa; --accent-rgb: 96,165,250; }
-[data-accent="pink"]   { --accent: #f472b6; --accent-rgb: 244,114,182; }
-[data-accent="orange"] { --accent: #fb923c; --accent-rgb: 251,146,60; }
-[data-accent="purple"] { --accent: #c084fc; --accent-rgb: 192,132,252; }
-[data-accent="teal"]   { --accent: #2dd4bf; --accent-rgb: 45,212,191; }
+[data-accent="blue"]   { --accent:#60a5fa; --accent-rgb:96,165,250; }
+[data-accent="pink"]   { --accent:#f472b6; --accent-rgb:244,114,182; }
+[data-accent="orange"] { --accent:#fb923c; --accent-rgb:251,146,60; }
+[data-accent="purple"] { --accent:#c084fc; --accent-rgb:192,132,252; }
+[data-accent="teal"]   { --accent:#2dd4bf; --accent-rgb:45,212,191; }
 
 /* ===== RESET ===== */
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-html { font-size: 16px; }
-body {
-  font-family: var(--font-body);
-  background: var(--bg);
-  color: var(--text);
-  min-height: 100vh;
-  overflow-x: hidden;
-  transition: background var(--transition), color var(--transition);
-}
-button { font-family: var(--font-body); cursor: pointer; border: none; outline: none; }
-input, textarea { font-family: var(--font-body); outline: none; border: none; }
-a { text-decoration: none; color: inherit; }
-ul { list-style: none; }
+*,*::before,*::after { box-sizing:border-box; margin:0; padding:0; }
+html { font-size:16px; }
+body { font-family:var(--font-body); background:var(--bg); color:var(--text); min-height:100vh; overflow-x:hidden; transition:background var(--transition),color var(--transition); }
+button { font-family:var(--font-body); cursor:pointer; border:none; outline:none; }
+input, textarea { font-family:var(--font-body); outline:none; border:none; }
+a { text-decoration:none; color:inherit; }
+ul { list-style:none; }
 
 /* ===== BACKGROUND ===== */
-#bg-layer {
-  position: fixed; inset: 0; z-index: 0;
-  background-size: cover; background-position: center;
-  transition: opacity 1.5s ease;
-}
+#bg-layer { position:fixed; inset:0; z-index:0; background-size:cover; background-position:center; transition:opacity 1.5s ease; }
 #bg-overlay {
-  position: fixed; inset: 0; z-index: 1;
-  background: linear-gradient(
-    to bottom,
-    rgba(10,10,15,0.55) 0%,
-    rgba(10,10,15,0.3) 40%,
-    rgba(10,10,15,0.65) 100%
-  );
+  position:fixed; inset:0; z-index:1;
+  background:linear-gradient(to bottom,rgba(10,10,15,0.55) 0%,rgba(10,10,15,0.3) 40%,rgba(10,10,15,0.65) 100%);
 }
 [data-theme="light"] #bg-overlay {
-  background: linear-gradient(
-    to bottom,
-    rgba(240,239,232,0.6) 0%,
-    rgba(240,239,232,0.35) 40%,
-    rgba(240,239,232,0.7) 100%
-  );
+  background:linear-gradient(to bottom,rgba(240,239,232,0.6) 0%,rgba(240,239,232,0.35) 40%,rgba(240,239,232,0.7) 100%);
 }
+
+/* ===== CUSTOM BG INDICATOR (bottom-left pill) ===== */
+#custom-bg-indicator {
+  position:fixed; bottom:60px; left:16px; z-index:100;
+  display:none; align-items:center; gap:7px;
+  background:var(--surface); backdrop-filter:var(--card-blur);
+  border:1px solid rgba(var(--accent-rgb),0.35); border-radius:20px;
+  padding:5px 12px 5px 8px; font-size:0.72rem; color:var(--accent); letter-spacing:0.05em;
+  animation:fadeIn 0.4s ease;
+}
+#custom-bg-indicator.visible { display:flex; }
+#custom-bg-reset {
+  background:none; border:none; color:var(--text-subtle);
+  font-size:0.7rem; margin-left:4px; cursor:pointer; padding:0; transition:color var(--transition);
+}
+#custom-bg-reset:hover { color:var(--accent); }
+
+/* ===== BOTTOM-LEFT BUTTON CLUSTER ===== */
+#bottom-left-bar { position:fixed; bottom:16px; left:16px; z-index:100; display:flex; gap:8px; align-items:center; }
 
 /* ===== LAYOUT ===== */
-#app {
-  position: relative; z-index: 2;
-  display: flex; flex-direction: row;
-  min-height: 100vh;
-}
-
-/* HERO (left/center) */
-#hero {
-  flex: 1;
-  display: flex; flex-direction: column;
-  align-items: center; justify-content: center;
-  padding: 40px 24px;
-  min-height: 100vh;
-  text-align: center;
-  gap: 0;
-}
-
-/* SIDEBAR (right) */
-#sidebar {
-  width: var(--sidebar-w);
-  display: flex; flex-direction: column; gap: 12px;
-  padding: 20px 16px 20px 0;
-  overflow-y: auto;
-  max-height: 100vh;
-  scrollbar-width: thin;
-  scrollbar-color: var(--border) transparent;
-  flex-shrink: 0;
-}
-#sidebar::-webkit-scrollbar { width: 4px; }
-#sidebar::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+#app { position:relative; z-index:2; display:flex; flex-direction:row; min-height:100vh; }
+#hero { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:40px 24px; min-height:100vh; text-align:center; gap:0; }
+#sidebar { width:var(--sidebar-w); display:flex; flex-direction:column; gap:12px; padding:20px 16px 20px 0; overflow-y:auto; max-height:100vh; scrollbar-width:thin; scrollbar-color:var(--border) transparent; flex-shrink:0; }
+#sidebar::-webkit-scrollbar { width:4px; }
+#sidebar::-webkit-scrollbar-thumb { background:var(--border); border-radius:4px; }
 
 /* ===== GLASS CARD ===== */
-.card {
-  background: var(--surface);
-  backdrop-filter: var(--card-blur);
-  -webkit-backdrop-filter: var(--card-blur);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 16px;
-  transition: background var(--transition), border var(--transition);
-}
-.card:hover { background: var(--surface-hover); }
-.card-title {
-  font-size: 10px;
-  font-weight: 500;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--text-muted);
-  margin-bottom: 10px;
-}
+.card { background:var(--surface); backdrop-filter:var(--card-blur); -webkit-backdrop-filter:var(--card-blur); border:1px solid var(--border); border-radius:var(--radius); padding:16px; transition:background var(--transition),border var(--transition); }
+.card:hover { background:var(--surface-hover); }
+.card-title { font-size:10px; font-weight:500; letter-spacing:0.12em; text-transform:uppercase; color:var(--text-muted); margin-bottom:10px; }
 
 /* ===== HERO ELEMENTS ===== */
-#greeting {
-  font-family: var(--font-display);
-  font-size: clamp(1.2rem, 3vw, 1.6rem);
-  font-weight: 300;
-  color: var(--text-muted);
-  letter-spacing: 0.03em;
-  margin-bottom: 8px;
-  font-style: italic;
-}
-#clock {
-  font-family: var(--font-display);
-  font-size: clamp(5rem, 14vw, 10rem);
-  font-weight: 300;
-  letter-spacing: -0.03em;
-  line-height: 1;
-  color: var(--text);
-  text-shadow: 0 0 80px rgba(var(--accent-rgb), 0.15);
-  user-select: none;
-}
-#date-display {
-  font-family: var(--font-body);
-  font-size: clamp(0.85rem, 2vw, 1rem);
-  font-weight: 300;
-  color: var(--text-muted);
-  letter-spacing: 0.08em;
-  margin-top: 6px;
-  text-transform: uppercase;
-}
-#hero-focus {
-  margin-top: 32px;
-  width: 100%; max-width: 520px;
-}
-#focus-label {
-  font-size: 10px;
-  letter-spacing: 0.15em;
-  text-transform: uppercase;
-  color: var(--text-muted);
-  margin-bottom: 8px;
-}
-#focus-row {
-  display: flex; gap: 8px; align-items: center;
-}
-#focus-input {
-  flex: 1;
-  background: rgba(255,255,255,0.06);
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  padding: 10px 14px;
-  color: var(--text);
-  font-size: 0.95rem;
-  font-weight: 300;
-  transition: border var(--transition), background var(--transition);
-}
-#focus-input:focus { border-color: rgba(var(--accent-rgb), 0.5); background: rgba(255,255,255,0.09); }
-#focus-input::placeholder { color: var(--text-subtle); }
-#focus-done-btn {
-  background: rgba(var(--accent-rgb), 0.12);
-  border: 1px solid rgba(var(--accent-rgb), 0.3);
-  color: var(--accent);
-  border-radius: 10px;
-  padding: 10px 14px;
-  font-size: 0.8rem;
-  font-weight: 500;
-  white-space: nowrap;
-  transition: all var(--transition);
-}
-#focus-done-btn:hover { background: rgba(var(--accent-rgb), 0.22); }
-#focus-done-btn.completed {
-  background: var(--accent);
-  color: #000;
-  border-color: var(--accent);
-}
+#greeting { font-family:var(--font-display); font-size:clamp(1.2rem,3vw,1.6rem); font-weight:300; color:var(--text-muted); letter-spacing:0.03em; margin-bottom:8px; font-style:italic; }
+#clock { font-family:var(--font-display); font-size:clamp(5rem,14vw,10rem); font-weight:300; letter-spacing:-0.03em; line-height:1; color:var(--text); text-shadow:0 0 80px rgba(var(--accent-rgb),0.15); user-select:none; }
+#date-display { font-family:var(--font-body); font-size:clamp(0.85rem,2vw,1rem); font-weight:300; color:var(--text-muted); letter-spacing:0.08em; margin-top:6px; text-transform:uppercase; }
+#hero-focus { margin-top:32px; width:100%; max-width:520px; }
+#focus-label { font-size:10px; letter-spacing:0.15em; text-transform:uppercase; color:var(--text-muted); margin-bottom:8px; }
+#focus-row { display:flex; gap:8px; align-items:center; }
+#focus-input { flex:1; background:rgba(255,255,255,0.06); border:1px solid var(--border); border-radius:10px; padding:10px 14px; color:var(--text); font-size:0.95rem; font-weight:300; transition:border var(--transition),background var(--transition); }
+#focus-input:focus { border-color:rgba(var(--accent-rgb),0.5); background:rgba(255,255,255,0.09); }
+#focus-input::placeholder { color:var(--text-subtle); }
+#focus-done-btn { background:rgba(var(--accent-rgb),0.12); border:1px solid rgba(var(--accent-rgb),0.3); color:var(--accent); border-radius:10px; padding:10px 14px; font-size:0.8rem; font-weight:500; white-space:nowrap; transition:all var(--transition); }
+#focus-done-btn:hover { background:rgba(var(--accent-rgb),0.22); }
+#focus-done-btn.completed { background:var(--accent); color:#000; border-color:var(--accent); }
 
 /* ===== QUOTE ===== */
-#quote-section {
-  margin-top: 28px;
-  max-width: 480px;
-  text-align: center;
-}
-#quote-text {
-  font-family: var(--font-display);
-  font-size: clamp(0.95rem, 2vw, 1.15rem);
-  font-style: italic;
-  font-weight: 300;
-  color: var(--text-muted);
-  line-height: 1.6;
-}
-#quote-author {
-  font-size: 0.75rem;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--text-subtle);
-  margin-top: 8px;
-}
-#quote-next {
-  background: none;
-  border: 1px solid var(--border);
-  color: var(--text-subtle);
-  border-radius: 20px;
-  padding: 4px 14px;
-  font-size: 0.72rem;
-  letter-spacing: 0.08em;
-  margin-top: 10px;
-  transition: all var(--transition);
-}
-#quote-next:hover { border-color: var(--accent); color: var(--accent); }
+#quote-section { margin-top:28px; max-width:480px; text-align:center; }
+#quote-text { font-family:var(--font-display); font-size:clamp(0.95rem,2vw,1.15rem); font-style:italic; font-weight:300; color:var(--text-muted); line-height:1.6; }
+#quote-author { font-size:0.75rem; letter-spacing:0.1em; text-transform:uppercase; color:var(--text-subtle); margin-top:8px; }
+#quote-next { background:none; border:1px solid var(--border); color:var(--text-subtle); border-radius:20px; padding:4px 14px; font-size:0.72rem; letter-spacing:0.08em; margin-top:10px; transition:all var(--transition); }
+#quote-next:hover { border-color:var(--accent); color:var(--accent); }
 
 /* ===== TOP BAR BUTTONS ===== */
-#top-bar {
-  position: fixed; top: 16px; right: 16px;
-  z-index: 100;
-  display: flex; gap: 8px;
-}
-.icon-btn {
-  width: 36px; height: 36px;
-  border-radius: 10px;
-  background: var(--surface);
-  backdrop-filter: var(--card-blur);
-  border: 1px solid var(--border);
-  color: var(--text-muted);
-  font-size: 16px;
-  display: flex; align-items: center; justify-content: center;
-  transition: all var(--transition);
-}
-.icon-btn:hover { color: var(--accent); border-color: rgba(var(--accent-rgb),0.4); }
+#top-bar { position:fixed; top:16px; right:16px; z-index:100; display:flex; gap:8px; }
+.icon-btn { width:36px; height:36px; border-radius:10px; background:var(--surface); backdrop-filter:var(--card-blur); border:1px solid var(--border); color:var(--text-muted); font-size:16px; display:flex; align-items:center; justify-content:center; transition:all var(--transition); }
+.icon-btn:hover { color:var(--accent); border-color:rgba(var(--accent-rgb),0.4); }
 
 /* ===== TODO ===== */
-#todo-input-row { display: flex; gap: 8px; }
-#todo-input {
-  flex: 1;
-  background: rgba(255,255,255,0.05);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 7px 10px;
-  color: var(--text);
-  font-size: 0.83rem;
-  transition: border var(--transition);
-}
-#todo-input:focus { border-color: rgba(var(--accent-rgb),0.4); }
-#todo-input::placeholder { color: var(--text-subtle); }
-#todo-add-btn {
-  background: rgba(var(--accent-rgb),0.15);
-  border: 1px solid rgba(var(--accent-rgb),0.3);
-  color: var(--accent);
-  border-radius: 8px;
-  padding: 7px 12px;
-  font-size: 0.8rem;
-  transition: all var(--transition);
-}
-#todo-add-btn:hover { background: rgba(var(--accent-rgb),0.25); }
-#todo-list { margin-top: 10px; display: flex; flex-direction: column; gap: 6px; max-height: 200px; overflow-y: auto; }
-#todo-list::-webkit-scrollbar { width: 3px; }
-#todo-list::-webkit-scrollbar-thumb { background: var(--border); }
-.todo-item {
-  display: flex; align-items: center; gap: 8px;
-  padding: 6px 8px;
-  border-radius: 8px;
-  background: rgba(255,255,255,0.03);
-  border: 1px solid transparent;
-  transition: all var(--transition);
-  animation: slideIn 0.2s ease;
-}
-.todo-item:hover { background: rgba(255,255,255,0.06); }
-.todo-check {
-  width: 16px; height: 16px; flex-shrink: 0;
-  border: 1.5px solid var(--border);
-  border-radius: 50%;
-  cursor: pointer; display: flex; align-items: center; justify-content: center;
-  transition: all var(--transition);
-}
-.todo-check:hover { border-color: var(--accent); }
-.todo-item.done .todo-check { background: var(--accent); border-color: var(--accent); }
-.todo-item.done .todo-check::after { content: '✓'; color: #000; font-size: 10px; font-weight: 700; }
-.todo-text { flex: 1; font-size: 0.83rem; font-weight: 300; }
-.todo-item.done .todo-text { text-decoration: line-through; color: var(--text-subtle); }
-.todo-del { color: var(--text-subtle); font-size: 0.75rem; cursor: pointer; opacity: 0; transition: opacity var(--transition); }
-.todo-item:hover .todo-del { opacity: 1; }
-#todo-clear {
-  background: none; border: none;
-  color: var(--text-subtle); font-size: 0.72rem;
-  margin-top: 6px; cursor: pointer; letter-spacing: 0.05em;
-  transition: color var(--transition);
-}
-#todo-clear:hover { color: var(--accent); }
+#todo-input-row { display:flex; gap:8px; }
+#todo-input { flex:1; background:rgba(255,255,255,0.05); border:1px solid var(--border); border-radius:8px; padding:7px 10px; color:var(--text); font-size:0.83rem; transition:border var(--transition); }
+#todo-input:focus { border-color:rgba(var(--accent-rgb),0.4); }
+#todo-input::placeholder { color:var(--text-subtle); }
+#todo-add-btn { background:rgba(var(--accent-rgb),0.15); border:1px solid rgba(var(--accent-rgb),0.3); color:var(--accent); border-radius:8px; padding:7px 12px; font-size:0.8rem; transition:all var(--transition); }
+#todo-add-btn:hover { background:rgba(var(--accent-rgb),0.25); }
+#todo-list { margin-top:10px; display:flex; flex-direction:column; gap:6px; max-height:200px; overflow-y:auto; }
+#todo-list::-webkit-scrollbar { width:3px; }
+#todo-list::-webkit-scrollbar-thumb { background:var(--border); }
+.todo-item { display:flex; align-items:center; gap:8px; padding:6px 8px; border-radius:8px; background:rgba(255,255,255,0.03); border:1px solid transparent; transition:all var(--transition); animation:slideIn 0.2s ease; }
+.todo-item:hover { background:rgba(255,255,255,0.06); }
+.todo-check { width:16px; height:16px; flex-shrink:0; border:1.5px solid var(--border); border-radius:50%; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:all var(--transition); }
+.todo-check:hover { border-color:var(--accent); }
+.todo-item.done .todo-check { background:var(--accent); border-color:var(--accent); }
+.todo-item.done .todo-check::after { content:'✓'; color:#000; font-size:10px; font-weight:700; }
+.todo-text { flex:1; font-size:0.83rem; font-weight:300; }
+.todo-item.done .todo-text { text-decoration:line-through; color:var(--text-subtle); }
+.todo-del { color:var(--text-subtle); font-size:0.75rem; cursor:pointer; opacity:0; transition:opacity var(--transition); }
+.todo-item:hover .todo-del { opacity:1; }
+#todo-clear { background:none; border:none; color:var(--text-subtle); font-size:0.72rem; margin-top:6px; cursor:pointer; letter-spacing:0.05em; transition:color var(--transition); }
+#todo-clear:hover { color:var(--accent); }
 
 /* ===== QUICK LINKS ===== */
-#links-grid { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 8px; }
-.link-chip {
-  display: flex; align-items: center; gap: 6px;
-  background: rgba(255,255,255,0.05);
-  border: 1px solid var(--border);
-  border-radius: 20px;
-  padding: 4px 10px 4px 8px;
-  font-size: 0.78rem;
-  transition: all var(--transition);
-  max-width: 140px;
-}
-.link-chip a { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--text-muted); transition: color var(--transition); }
-.link-chip:hover { border-color: rgba(var(--accent-rgb),0.4); }
-.link-chip:hover a { color: var(--accent); }
-.link-chip-del { color: var(--text-subtle); cursor: pointer; font-size: 10px; flex-shrink: 0; opacity: 0; transition: opacity var(--transition); }
-.link-chip:hover .link-chip-del { opacity: 1; }
-#link-add-row { display: flex; gap: 6px; }
-#link-label-input, #link-url-input {
-  flex: 1;
-  background: rgba(255,255,255,0.05);
-  border: 1px solid var(--border);
-  border-radius: 7px;
-  padding: 6px 8px;
-  color: var(--text);
-  font-size: 0.78rem;
-  min-width: 0;
-  transition: border var(--transition);
-}
-#link-label-input:focus, #link-url-input:focus { border-color: rgba(var(--accent-rgb),0.4); }
-#link-label-input::placeholder, #link-url-input::placeholder { color: var(--text-subtle); }
-#link-add-btn {
-  background: rgba(var(--accent-rgb),0.15);
-  border: 1px solid rgba(var(--accent-rgb),0.3);
-  color: var(--accent);
-  border-radius: 7px;
-  padding: 6px 10px;
-  font-size: 0.78rem;
-  transition: all var(--transition);
-  white-space: nowrap;
-}
-#link-add-btn:hover { background: rgba(var(--accent-rgb),0.25); }
+#links-grid { display:flex; flex-wrap:wrap; gap:6px; margin-bottom:8px; }
+.link-chip { display:flex; align-items:center; gap:6px; background:rgba(255,255,255,0.05); border:1px solid var(--border); border-radius:20px; padding:4px 10px 4px 8px; font-size:0.78rem; transition:all var(--transition); max-width:140px; }
+.link-chip a { flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; color:var(--text-muted); transition:color var(--transition); }
+.link-chip:hover { border-color:rgba(var(--accent-rgb),0.4); }
+.link-chip:hover a { color:var(--accent); }
+.link-chip-del { color:var(--text-subtle); cursor:pointer; font-size:10px; flex-shrink:0; opacity:0; transition:opacity var(--transition); }
+.link-chip:hover .link-chip-del { opacity:1; }
+#link-add-row { display:flex; gap:6px; }
+#link-label-input, #link-url-input { flex:1; background:rgba(255,255,255,0.05); border:1px solid var(--border); border-radius:7px; padding:6px 8px; color:var(--text); font-size:0.78rem; min-width:0; transition:border var(--transition); }
+#link-label-input:focus, #link-url-input:focus { border-color:rgba(var(--accent-rgb),0.4); }
+#link-label-input::placeholder, #link-url-input::placeholder { color:var(--text-subtle); }
+#link-add-btn { background:rgba(var(--accent-rgb),0.15); border:1px solid rgba(var(--accent-rgb),0.3); color:var(--accent); border-radius:7px; padding:6px 10px; font-size:0.78rem; transition:all var(--transition); white-space:nowrap; }
+#link-add-btn:hover { background:rgba(var(--accent-rgb),0.25); }
 
 /* ===== NOTES ===== */
-#notes-textarea {
-  width: 100%;
-  background: rgba(255,255,255,0.04);
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  padding: 10px;
-  color: var(--text);
-  font-size: 0.83rem;
-  font-weight: 300;
-  resize: vertical;
-  min-height: 90px;
-  line-height: 1.6;
-  transition: border var(--transition);
-}
-#notes-textarea:focus { border-color: rgba(var(--accent-rgb),0.4); }
-#notes-textarea::placeholder { color: var(--text-subtle); }
+#notes-textarea { width:100%; background:rgba(255,255,255,0.04); border:1px solid var(--border); border-radius:10px; padding:10px; color:var(--text); font-size:0.83rem; font-weight:300; resize:vertical; min-height:90px; line-height:1.6; transition:border var(--transition); }
+#notes-textarea:focus { border-color:rgba(var(--accent-rgb),0.4); }
+#notes-textarea::placeholder { color:var(--text-subtle); }
 
 /* ===== POMODORO ===== */
-#pomo-display {
-  font-family: var(--font-mono);
-  font-size: 2.4rem;
-  font-weight: 300;
-  letter-spacing: 0.05em;
-  color: var(--text);
-  text-align: center;
-  margin: 6px 0;
-}
-#pomo-mode {
-  text-align: center;
-  font-size: 0.72rem;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--accent);
-  margin-bottom: 10px;
-}
-#pomo-buttons { display: flex; gap: 6px; justify-content: center; }
-.pomo-btn {
-  background: rgba(255,255,255,0.06);
-  border: 1px solid var(--border);
-  color: var(--text-muted);
-  border-radius: 8px;
-  padding: 6px 14px;
-  font-size: 0.78rem;
-  transition: all var(--transition);
-}
-.pomo-btn:hover { background: rgba(var(--accent-rgb),0.15); border-color: rgba(var(--accent-rgb),0.4); color: var(--accent); }
-.pomo-btn.active { background: var(--accent); color: #000; border-color: var(--accent); }
-#pomo-progress {
-  width: 100%;
-  height: 3px;
-  background: var(--border);
-  border-radius: 2px;
-  margin-top: 10px;
-  overflow: hidden;
-}
-#pomo-progress-bar {
-  height: 100%;
-  background: var(--accent);
-  border-radius: 2px;
-  transition: width 1s linear;
-}
+#pomo-display { font-family:var(--font-mono); font-size:2.4rem; font-weight:300; letter-spacing:0.05em; color:var(--text); text-align:center; margin:6px 0; }
+#pomo-mode { text-align:center; font-size:0.72rem; letter-spacing:0.12em; text-transform:uppercase; color:var(--accent); margin-bottom:10px; }
+#pomo-buttons { display:flex; gap:6px; justify-content:center; }
+.pomo-btn { background:rgba(255,255,255,0.06); border:1px solid var(--border); color:var(--text-muted); border-radius:8px; padding:6px 14px; font-size:0.78rem; transition:all var(--transition); }
+.pomo-btn:hover { background:rgba(var(--accent-rgb),0.15); border-color:rgba(var(--accent-rgb),0.4); color:var(--accent); }
+.pomo-btn.active { background:var(--accent); color:#000; border-color:var(--accent); }
+#pomo-progress { width:100%; height:3px; background:var(--border); border-radius:2px; margin-top:10px; overflow:hidden; }
+#pomo-progress-bar { height:100%; background:var(--accent); border-radius:2px; transition:width 1s linear; }
 
 /* ===== WEATHER ===== */
-#weather-main { display: flex; align-items: center; gap: 12px; }
-#weather-icon { font-size: 2.2rem; }
-#weather-temp { font-family: var(--font-display); font-size: 2rem; font-weight: 300; }
-#weather-info { font-size: 0.8rem; color: var(--text-muted); line-height: 1.5; }
-#weather-condition { font-size: 0.83rem; color: var(--text); font-weight: 400; }
+#weather-main { display:flex; align-items:center; gap:12px; }
+#weather-icon { font-size:2.2rem; }
+#weather-temp { font-family:var(--font-display); font-size:2rem; font-weight:300; }
+#weather-info { font-size:0.8rem; color:var(--text-muted); line-height:1.5; }
+#weather-condition { font-size:0.83rem; color:var(--text); font-weight:400; }
 
 /* ===== WORLD CLOCKS ===== */
-#clocks-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-.clock-item { text-align: center; }
-.clock-city { font-size: 0.68rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-subtle); }
-.clock-time { font-family: var(--font-mono); font-size: 1rem; font-weight: 300; color: var(--text); letter-spacing: 0.04em; }
+#clocks-grid { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+.clock-item { text-align:center; }
+.clock-city { font-size:0.68rem; letter-spacing:0.1em; text-transform:uppercase; color:var(--text-subtle); }
+.clock-time { font-family:var(--font-mono); font-size:1rem; font-weight:300; color:var(--text); letter-spacing:0.04em; }
+
+/* ===== LOFI MUSIC PLAYER ===== */
+#widget-lofi .card-title-row { display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; }
+#lofi-station-btns { display:flex; gap:5px; margin-bottom:12px; }
+.lofi-station-btn {
+  flex:1; background:rgba(255,255,255,0.05); border:1px solid var(--border);
+  color:var(--text-muted); border-radius:7px; padding:5px 4px;
+  font-size:0.72rem; letter-spacing:0.02em; transition:all var(--transition); white-space:nowrap;
+}
+.lofi-station-btn:hover { background:rgba(var(--accent-rgb),0.1); color:var(--accent); border-color:rgba(var(--accent-rgb),0.3); }
+.lofi-station-btn.active { background:rgba(var(--accent-rgb),0.18); border-color:var(--accent); color:var(--accent); }
+#lofi-controls { display:flex; align-items:center; gap:8px; }
+#lofi-play-btn {
+  width:36px; height:36px; flex-shrink:0; border-radius:50%;
+  background:var(--accent); border:none; color:#000; font-size:14px;
+  display:flex; align-items:center; justify-content:center;
+  transition:all var(--transition); box-shadow:0 0 16px rgba(var(--accent-rgb),0.35);
+}
+#lofi-play-btn:hover { transform:scale(1.08); box-shadow:0 0 24px rgba(var(--accent-rgb),0.5); }
+#lofi-mute-btn {
+  width:30px; height:30px; flex-shrink:0; border-radius:8px;
+  background:rgba(255,255,255,0.06); border:1px solid var(--border); color:var(--text-muted); font-size:14px;
+  display:flex; align-items:center; justify-content:center; transition:all var(--transition);
+}
+#lofi-mute-btn:hover { color:var(--accent); border-color:rgba(var(--accent-rgb),0.4); }
+#lofi-mute-btn.muted { color:var(--text-subtle); }
+#lofi-station-name { flex:1; font-size:0.75rem; color:var(--text-muted); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+
+/* CSS Equalizer bars */
+#lofi-eq { display:flex; align-items:flex-end; gap:2px; height:20px; flex-shrink:0; }
+.eq-bar { width:3px; background:var(--accent); border-radius:2px 2px 0 0; animation:eqBounce 0.8s ease-in-out infinite alternate; opacity:0.75; }
+.eq-bar:nth-child(1) { animation-duration:0.65s; animation-delay:0.00s; }
+.eq-bar:nth-child(2) { animation-duration:0.50s; animation-delay:0.10s; }
+.eq-bar:nth-child(3) { animation-duration:0.90s; animation-delay:0.20s; }
+.eq-bar:nth-child(4) { animation-duration:0.55s; animation-delay:0.05s; }
+.eq-bar:nth-child(5) { animation-duration:0.75s; animation-delay:0.15s; }
+@keyframes eqBounce { from { height:3px; } to { height:18px; } }
+#lofi-eq.paused .eq-bar { animation-play-state:paused; height:4px; opacity:0.25; }
+
+/* Hidden YouTube iframe (audio sink) */
+#lofi-iframe-container { width:0; height:0; overflow:hidden; position:absolute; pointer-events:none; left:-9999px; }
 
 /* ===== SETTINGS PANEL ===== */
-#settings-panel {
-  position: fixed; inset: 0; z-index: 200;
-  display: none; align-items: flex-start; justify-content: flex-end;
-}
-#settings-panel.open { display: flex; }
-#settings-backdrop {
-  position: absolute; inset: 0;
-  background: rgba(0,0,0,0.5);
-  backdrop-filter: blur(4px);
-}
-#settings-drawer {
-  position: relative; z-index: 1;
-  width: 320px;
-  height: 100vh;
-  background: var(--bg2);
-  border-left: 1px solid var(--border);
-  overflow-y: auto;
-  padding: 24px 20px;
-  display: flex; flex-direction: column; gap: 20px;
-  animation: slideDrawer 0.3s ease;
-}
-@keyframes slideDrawer { from { transform: translateX(100%); } to { transform: translateX(0); } }
-.settings-section-title {
-  font-size: 10px; letter-spacing: 0.15em; text-transform: uppercase;
-  color: var(--text-muted); margin-bottom: 10px;
-}
-.settings-field { display: flex; flex-direction: column; gap: 5px; }
-.settings-field label { font-size: 0.8rem; color: var(--text-muted); }
-.settings-field input[type="text"] {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 8px 10px;
-  color: var(--text);
-  font-size: 0.85rem;
-  width: 100%;
-  transition: border var(--transition);
-}
-.settings-field input[type="text"]:focus { border-color: rgba(var(--accent-rgb),0.5); }
-.toggle-row {
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 6px 0;
-  border-bottom: 1px solid var(--border);
-}
-.toggle-row:last-child { border-bottom: none; }
-.toggle-label { font-size: 0.83rem; color: var(--text-muted); }
-.toggle {
-  width: 36px; height: 20px;
-  background: var(--border);
-  border-radius: 10px;
-  cursor: pointer;
-  position: relative;
-  transition: background var(--transition);
-  flex-shrink: 0;
-  border: none;
-}
-.toggle.on { background: var(--accent); }
-.toggle::after {
-  content: '';
-  position: absolute; top: 3px; left: 3px;
-  width: 14px; height: 14px;
-  background: white;
-  border-radius: 50%;
-  transition: transform var(--transition);
-}
-.toggle.on::after { transform: translateX(16px); }
-.color-swatches { display: flex; gap: 8px; flex-wrap: wrap; }
-.swatch {
-  width: 28px; height: 28px;
-  border-radius: 50%;
-  cursor: pointer;
-  border: 2px solid transparent;
-  transition: border var(--transition), transform var(--transition);
-}
-.swatch:hover { transform: scale(1.1); }
-.swatch.active { border-color: var(--text); }
-#settings-close {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  color: var(--text-muted);
-  border-radius: 8px;
-  padding: 8px;
-  font-size: 0.85rem;
-  transition: all var(--transition);
-}
-#settings-close:hover { color: var(--text); }
-.select-row { display: flex; gap: 6px; }
-.sel-btn {
-  flex: 1;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  color: var(--text-muted);
-  border-radius: 8px;
-  padding: 7px;
-  font-size: 0.78rem;
-  transition: all var(--transition);
-}
-.sel-btn.active { background: rgba(var(--accent-rgb),0.15); border-color: var(--accent); color: var(--accent); }
+#settings-panel { position:fixed; inset:0; z-index:200; display:none; align-items:flex-start; justify-content:flex-end; }
+#settings-panel.open { display:flex; }
+#settings-backdrop { position:absolute; inset:0; background:rgba(0,0,0,0.5); backdrop-filter:blur(4px); }
+#settings-drawer { position:relative; z-index:1; width:320px; height:100vh; background:var(--bg2); border-left:1px solid var(--border); overflow-y:auto; padding:24px 20px; display:flex; flex-direction:column; gap:20px; animation:slideDrawer 0.3s ease; }
+@keyframes slideDrawer { from { transform:translateX(100%); } to { transform:translateX(0); } }
+.settings-section-title { font-size:10px; letter-spacing:0.15em; text-transform:uppercase; color:var(--text-muted); margin-bottom:10px; }
+.settings-field { display:flex; flex-direction:column; gap:5px; }
+.settings-field label { font-size:0.8rem; color:var(--text-muted); }
+.settings-field input[type="text"] { background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:8px 10px; color:var(--text); font-size:0.85rem; width:100%; transition:border var(--transition); }
+.settings-field input[type="text"]:focus { border-color:rgba(var(--accent-rgb),0.5); }
+.toggle-row { display:flex; align-items:center; justify-content:space-between; padding:6px 0; border-bottom:1px solid var(--border); }
+.toggle-row:last-child { border-bottom:none; }
+.toggle-label { font-size:0.83rem; color:var(--text-muted); }
+.toggle { width:36px; height:20px; background:var(--border); border-radius:10px; cursor:pointer; position:relative; transition:background var(--transition); flex-shrink:0; border:none; }
+.toggle.on { background:var(--accent); }
+.toggle::after { content:''; position:absolute; top:3px; left:3px; width:14px; height:14px; background:white; border-radius:50%; transition:transform var(--transition); }
+.toggle.on::after { transform:translateX(16px); }
+.color-swatches { display:flex; gap:8px; flex-wrap:wrap; }
+.swatch { width:28px; height:28px; border-radius:50%; cursor:pointer; border:2px solid transparent; transition:border var(--transition),transform var(--transition); }
+.swatch:hover { transform:scale(1.1); }
+.swatch.active { border-color:var(--text); }
+#settings-close { background:var(--surface); border:1px solid var(--border); color:var(--text-muted); border-radius:8px; padding:8px; font-size:0.85rem; transition:all var(--transition); }
+#settings-close:hover { color:var(--text); }
+.select-row { display:flex; gap:6px; }
+.sel-btn { flex:1; background:var(--surface); border:1px solid var(--border); color:var(--text-muted); border-radius:8px; padding:7px; font-size:0.78rem; transition:all var(--transition); }
+.sel-btn.active { background:rgba(var(--accent-rgb),0.15); border-color:var(--accent); color:var(--accent); }
+
+/* Background section in settings */
+#bg-settings-btns { display:flex; gap:6px; flex-wrap:wrap; margin-top:6px; }
+.bg-action-btn { background:var(--surface); border:1px solid var(--border); color:var(--text-muted); border-radius:8px; padding:7px 12px; font-size:0.78rem; transition:all var(--transition); cursor:pointer; }
+.bg-action-btn:hover { color:var(--accent); border-color:rgba(var(--accent-rgb),0.4); }
+.bg-action-btn.danger:hover { color:#f87171; border-color:rgba(248,113,113,0.4); }
+#bg-status { font-size:0.75rem; color:var(--text-subtle); margin-top:4px; }
 
 /* ===== FOCUS MODE ===== */
-#focus-mode-overlay {
-  position: fixed; inset: 0; z-index: 150;
-  background: rgba(0,0,0,0.85);
-  backdrop-filter: blur(12px);
-  display: none;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 20px;
-}
-#focus-mode-overlay.active { display: flex; }
-#focus-mode-clock {
-  font-family: var(--font-display);
-  font-size: clamp(4rem, 12vw, 9rem);
-  font-weight: 300;
-  color: var(--text);
-}
-#focus-mode-input-row { display: flex; gap: 10px; width: 100%; max-width: 480px; padding: 0 20px; }
-#focus-mode-input {
-  flex: 1;
-  background: rgba(255,255,255,0.07);
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 12px 16px;
-  color: var(--text);
-  font-size: 1rem;
-  font-weight: 300;
-}
-#focus-mode-input::placeholder { color: var(--text-subtle); }
-#focus-mode-exit {
-  position: absolute; top: 20px; right: 20px;
-  background: none; border: 1px solid var(--border);
-  color: var(--text-muted); border-radius: 10px;
-  padding: 8px 16px; font-size: 0.8rem;
-  transition: all var(--transition);
-}
-#focus-mode-exit:hover { color: var(--text); border-color: var(--text); }
+#focus-mode-overlay { position:fixed; inset:0; z-index:150; background:rgba(0,0,0,0.85); backdrop-filter:blur(12px); display:none; flex-direction:column; align-items:center; justify-content:center; gap:20px; }
+#focus-mode-overlay.active { display:flex; }
+#focus-mode-clock { font-family:var(--font-display); font-size:clamp(4rem,12vw,9rem); font-weight:300; color:var(--text); }
+#focus-mode-input-row { display:flex; gap:10px; width:100%; max-width:480px; padding:0 20px; }
+#focus-mode-input { flex:1; background:rgba(255,255,255,0.07); border:1px solid var(--border); border-radius:12px; padding:12px 16px; color:var(--text); font-size:1rem; font-weight:300; }
+#focus-mode-input::placeholder { color:var(--text-subtle); }
+#focus-mode-exit { position:absolute; top:20px; right:20px; background:none; border:1px solid var(--border); color:var(--text-muted); border-radius:10px; padding:8px 16px; font-size:0.8rem; transition:all var(--transition); }
+#focus-mode-exit:hover { color:var(--text); border-color:var(--text); }
 
 /* ===== ANIMATIONS ===== */
-@keyframes slideIn { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: translateY(0); } }
-@keyframes fadeIn  { from { opacity: 0; } to { opacity: 1; } }
-#hero > * { animation: fadeIn 0.8s ease both; }
-#greeting   { animation-delay: 0.1s; }
-#clock      { animation-delay: 0.2s; }
-#date-display { animation-delay: 0.3s; }
-#hero-focus { animation-delay: 0.4s; }
-#quote-section { animation-delay: 0.5s; }
+@keyframes slideIn { from { opacity:0; transform:translateY(-6px); } to { opacity:1; transform:translateY(0); } }
+@keyframes fadeIn  { from { opacity:0; } to { opacity:1; } }
+#hero > * { animation:fadeIn 0.8s ease both; }
+#greeting     { animation-delay:0.1s; }
+#clock        { animation-delay:0.2s; }
+#date-display { animation-delay:0.3s; }
+#hero-focus   { animation-delay:0.4s; }
+#quote-section{ animation-delay:0.5s; }
 
 /* ===== RESPONSIVE ===== */
-@media (max-width: 860px) {
-  #app { flex-direction: column; }
-  #sidebar { width: 100%; max-height: none; padding: 8px 12px 20px; }
-  #hero { min-height: 60vh; }
-  #top-bar { top: 10px; right: 10px; }
+@media (max-width:860px) {
+  #app { flex-direction:column; }
+  #sidebar { width:100%; max-height:none; padding:8px 12px 20px; }
+  #hero { min-height:60vh; }
+  #top-bar { top:10px; right:10px; }
+  #bottom-left-bar { bottom:10px; left:10px; }
 }
 
 /* ===== MISC ===== */
-.hidden { display: none !important; }
-#sidebar-section { display: contents; }
+.hidden { display:none !important; }
 </style>
 </head>
 <body data-theme="dark" data-accent="teal">
 
-<!-- Background -->
+<!-- Background layers -->
 <div id="bg-layer"></div>
 <div id="bg-overlay"></div>
 
-<!-- Top bar buttons -->
+<!-- Hidden YouTube iframe container — audio only, kept off-screen -->
+<div id="lofi-iframe-container">
+  <iframe id="lofi-iframe" width="1" height="1" frameborder="0"
+    allow="autoplay; encrypted-media" allowfullscreen
+    src="about:blank"></iframe>
+</div>
+
+<!-- Hidden file input for custom background upload -->
+<input type="file" id="bg-file-input" accept="image/*" style="display:none;" />
+
+<!-- Custom background active indicator (bottom-left, above upload button) -->
+<div id="custom-bg-indicator">
+  <span>🖼</span>&nbsp;Custom background
+  <button id="custom-bg-reset" title="Reset to Pexels rotation">Reset ✕</button>
+</div>
+
+<!-- Bottom-left: upload background button -->
+<div id="bottom-left-bar">
+  <button class="icon-btn" id="bg-upload-btn" title="Upload custom background image">🖼</button>
+</div>
+
+<!-- Top-right bar -->
 <div id="top-bar">
   <button class="icon-btn" id="focus-mode-btn" title="Focus Mode">⊙</button>
   <button class="icon-btn" id="theme-toggle" title="Toggle Theme">◐</button>
   <button class="icon-btn" id="settings-btn" title="Settings">⚙</button>
 </div>
 
-<!-- Main App -->
+<!-- ===== MAIN APP ===== -->
 <div id="app">
 
-  <!-- HERO -->
+  <!-- HERO (center) -->
   <div id="hero">
     <div id="greeting">Good morning, Juven Lim</div>
     <div id="clock">00:00</div>
@@ -643,10 +351,37 @@ ul { list-style: none; }
     </div>
   </div>
 
-  <!-- SIDEBAR -->
+  <!-- SIDEBAR (right) -->
   <div id="sidebar">
 
-    <!-- Weather -->
+    <!-- ── LOFI MUSIC PLAYER ── -->
+    <div class="card" id="widget-lofi">
+      <div class="card-title-row">
+        <div class="card-title" style="margin-bottom:0;">Lofi Radio</div>
+        <!-- CSS equalizer — animated when playing -->
+        <div id="lofi-eq" class="paused">
+          <div class="eq-bar"></div>
+          <div class="eq-bar"></div>
+          <div class="eq-bar"></div>
+          <div class="eq-bar"></div>
+          <div class="eq-bar"></div>
+        </div>
+      </div>
+      <!-- Station selector -->
+      <div id="lofi-station-btns">
+        <button class="lofi-station-btn active" data-station-idx="0">🎵 Lofi</button>
+        <button class="lofi-station-btn"        data-station-idx="1">🌊 Synthwave</button>
+        <button class="lofi-station-btn"        data-station-idx="2">🌿 Chillhop</button>
+      </div>
+      <!-- Controls row -->
+      <div id="lofi-controls">
+        <button id="lofi-play-btn" title="Play / Pause">▶</button>
+        <span id="lofi-station-name">Lofi Girl — beats to relax/study</span>
+        <button id="lofi-mute-btn" title="Mute / Unmute">🔊</button>
+      </div>
+    </div>
+
+    <!-- ── WEATHER ── -->
     <div class="card" id="widget-weather">
       <div class="card-title">Singapore Weather</div>
       <div id="weather-main">
@@ -659,7 +394,7 @@ ul { list-style: none; }
       </div>
     </div>
 
-    <!-- World Clocks -->
+    <!-- ── WORLD CLOCKS ── -->
     <div class="card" id="widget-clocks">
       <div class="card-title">World Clocks</div>
       <div id="clocks-grid">
@@ -670,7 +405,7 @@ ul { list-style: none; }
       </div>
     </div>
 
-    <!-- Pomodoro -->
+    <!-- ── POMODORO ── -->
     <div class="card" id="widget-pomodoro">
       <div class="card-title">Pomodoro Timer</div>
       <div id="pomo-mode">Focus — 25:00</div>
@@ -683,7 +418,7 @@ ul { list-style: none; }
       <div id="pomo-progress"><div id="pomo-progress-bar" style="width:100%"></div></div>
     </div>
 
-    <!-- Todo -->
+    <!-- ── TODO ── -->
     <div class="card" id="widget-todo">
       <div class="card-title">Todo List</div>
       <div id="todo-input-row">
@@ -694,18 +429,18 @@ ul { list-style: none; }
       <button id="todo-clear">Clear completed</button>
     </div>
 
-    <!-- Quick Links -->
+    <!-- ── QUICK LINKS ── -->
     <div class="card" id="widget-links">
       <div class="card-title">Quick Links</div>
       <div id="links-grid"></div>
       <div id="link-add-row">
         <input id="link-label-input" type="text" placeholder="Label" autocomplete="off" />
-        <input id="link-url-input" type="text" placeholder="URL" autocomplete="off" />
+        <input id="link-url-input"   type="text" placeholder="URL"   autocomplete="off" />
         <button id="link-add-btn">Add</button>
       </div>
     </div>
 
-    <!-- Notes -->
+    <!-- ── NOTES ── -->
     <div class="card" id="widget-notes">
       <div class="card-title">Notes</div>
       <textarea id="notes-textarea" placeholder="Jot something down…"></textarea>
@@ -714,30 +449,30 @@ ul { list-style: none; }
   </div><!-- /sidebar -->
 </div><!-- /app -->
 
-<!-- Focus Mode Overlay -->
+<!-- ===== FOCUS MODE OVERLAY ===== -->
 <div id="focus-mode-overlay">
   <button id="focus-mode-exit">Exit Focus Mode</button>
   <div id="focus-mode-clock">00:00</div>
   <div id="focus-mode-input-row">
     <input id="focus-mode-input" type="text" placeholder="What's your focus?" autocomplete="off" />
   </div>
-  <!-- Pomodoro clone inside focus mode -->
   <div style="text-align:center">
     <div id="focus-pomo-mode" style="font-size:0.72rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--accent);margin-bottom:6px;"></div>
     <div id="focus-pomo-display" style="font-family:var(--font-mono);font-size:2rem;font-weight:300;color:var(--text);"></div>
   </div>
 </div>
 
-<!-- Settings Panel -->
+<!-- ===== SETTINGS PANEL ===== -->
 <div id="settings-panel">
   <div id="settings-backdrop"></div>
   <div id="settings-drawer">
+
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;">
       <span style="font-family:var(--font-display);font-size:1.3rem;font-weight:300;">Settings</span>
       <button id="settings-close">✕ Close</button>
     </div>
 
-    <!-- Name -->
+    <!-- Profile -->
     <div>
       <div class="settings-section-title">Profile</div>
       <div class="settings-field">
@@ -746,20 +481,30 @@ ul { list-style: none; }
       </div>
     </div>
 
-    <!-- Theme -->
+    <!-- Background -->
+    <div>
+      <div class="settings-section-title">Background Image</div>
+      <div id="bg-status">Rotating Pexels images (daily)</div>
+      <div id="bg-settings-btns">
+        <button class="bg-action-btn" id="settings-upload-bg-btn">📁 Upload image</button>
+        <button class="bg-action-btn danger" id="settings-reset-bg-btn">↩ Reset to default</button>
+      </div>
+    </div>
+
+    <!-- Appearance -->
     <div>
       <div class="settings-section-title">Appearance</div>
       <div class="settings-field" style="margin-bottom:10px;">
         <label>Theme</label>
         <div class="select-row">
           <button class="sel-btn active" data-theme-btn="dark">Dark</button>
-          <button class="sel-btn" data-theme-btn="light">Light</button>
+          <button class="sel-btn"        data-theme-btn="light">Light</button>
         </div>
       </div>
       <div class="settings-field" style="margin-bottom:10px;">
         <label>Time Format</label>
         <div class="select-row">
-          <button class="sel-btn" data-fmt-btn="12">12h</button>
+          <button class="sel-btn"        data-fmt-btn="12">12h</button>
           <button class="sel-btn active" data-fmt-btn="24">24h</button>
         </div>
       </div>
@@ -767,10 +512,10 @@ ul { list-style: none; }
         <label>Accent Color</label>
         <div class="color-swatches">
           <div class="swatch active" data-accent="teal"   style="background:#2dd4bf;" title="Teal"></div>
-          <div class="swatch" data-accent="blue"   style="background:#60a5fa;" title="Blue"></div>
-          <div class="swatch" data-accent="pink"   style="background:#f472b6;" title="Pink"></div>
-          <div class="swatch" data-accent="orange" style="background:#fb923c;" title="Orange"></div>
-          <div class="swatch" data-accent="purple" style="background:#c084fc;" title="Purple"></div>
+          <div class="swatch"        data-accent="blue"   style="background:#60a5fa;" title="Blue"></div>
+          <div class="swatch"        data-accent="pink"   style="background:#f472b6;" title="Pink"></div>
+          <div class="swatch"        data-accent="orange" style="background:#fb923c;" title="Orange"></div>
+          <div class="swatch"        data-accent="purple" style="background:#c084fc;" title="Purple"></div>
         </div>
       </div>
     </div>
@@ -779,65 +524,70 @@ ul { list-style: none; }
     <div>
       <div class="settings-section-title">Widgets</div>
       <div id="widget-toggles">
-        <div class="toggle-row"><span class="toggle-label">Weather</span><button class="toggle on" data-widget="widget-weather"></button></div>
-        <div class="toggle-row"><span class="toggle-label">World Clocks</span><button class="toggle on" data-widget="widget-clocks"></button></div>
-        <div class="toggle-row"><span class="toggle-label">Pomodoro</span><button class="toggle on" data-widget="widget-pomodoro"></button></div>
-        <div class="toggle-row"><span class="toggle-label">Todo List</span><button class="toggle on" data-widget="widget-todo"></button></div>
-        <div class="toggle-row"><span class="toggle-label">Quick Links</span><button class="toggle on" data-widget="widget-links"></button></div>
-        <div class="toggle-row"><span class="toggle-label">Notes</span><button class="toggle on" data-widget="widget-notes"></button></div>
-        <div class="toggle-row"><span class="toggle-label">Quote</span><button class="toggle on" data-widget="quote-widget"></button></div>
+        <div class="toggle-row"><span class="toggle-label">Lofi Radio</span>   <button class="toggle on" data-widget="widget-lofi"></button></div>
+        <div class="toggle-row"><span class="toggle-label">Weather</span>      <button class="toggle on" data-widget="widget-weather"></button></div>
+        <div class="toggle-row"><span class="toggle-label">World Clocks</span> <button class="toggle on" data-widget="widget-clocks"></button></div>
+        <div class="toggle-row"><span class="toggle-label">Pomodoro</span>     <button class="toggle on" data-widget="widget-pomodoro"></button></div>
+        <div class="toggle-row"><span class="toggle-label">Todo List</span>    <button class="toggle on" data-widget="widget-todo"></button></div>
+        <div class="toggle-row"><span class="toggle-label">Quick Links</span>  <button class="toggle on" data-widget="widget-links"></button></div>
+        <div class="toggle-row"><span class="toggle-label">Notes</span>        <button class="toggle on" data-widget="widget-notes"></button></div>
+        <div class="toggle-row"><span class="toggle-label">Quote</span>        <button class="toggle on" data-widget="quote-widget"></button></div>
       </div>
     </div>
+
   </div>
 </div>
 
+<!-- ================================================================
+     JAVASCRIPT
+     ================================================================ -->
 <script>
-/* ============================================================
-   DASHBOARD — Juven Lim | Singapore | v1.0
-   All data persisted in localStorage under namespace 'jl_'
-   ============================================================ */
+'use strict';
 
-// ── HELPERS ──────────────────────────────────────────────────
+/* ── HELPERS ─────────────────────────────────────────────────────── */
 const $ = id => document.getElementById(id);
 const ls = {
-  get: (k, def) => { try { const v = localStorage.getItem('jl_'+k); return v !== null ? JSON.parse(v) : def; } catch { return def; } },
-  set: (k, v)   => { try { localStorage.setItem('jl_'+k, JSON.stringify(v)); } catch {} }
+  get : (k, def) => { try { const v = localStorage.getItem('jl_' + k); return v !== null ? JSON.parse(v) : def; } catch { return def; } },
+  set : (k, v)   => { try { localStorage.setItem('jl_' + k, JSON.stringify(v)); } catch(e) { console.warn('ls.set failed', k, e); } },
+  del : (k)      => { try { localStorage.removeItem('jl_' + k); } catch {} }
 };
-const todayKey = () => new Date().toISOString().slice(0,10); // "YYYY-MM-DD"
+const todayKey = () => new Date().toISOString().slice(0, 10);
+const pad2     = n  => String(n).padStart(2, '0');
+const escHtml  = s  => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 
-// ── SETTINGS STATE ───────────────────────────────────────────
+/* ── SETTINGS ────────────────────────────────────────────────────── */
 const settings = ls.get('settings', {
-  name: 'Juven Lim',
-  theme: 'dark',
-  fmt: '24',
-  accent: 'teal',
-  widgets: { 'widget-weather':true,'widget-clocks':true,'widget-pomodoro':true,'widget-todo':true,'widget-links':true,'widget-notes':true,'quote-widget':true }
+  name: 'Juven Lim', theme: 'dark', fmt: '24', accent: 'teal',
+  widgets: {
+    'widget-lofi': true, 'widget-weather': true, 'widget-clocks': true,
+    'widget-pomodoro': true, 'widget-todo': true, 'widget-links': true,
+    'widget-notes': true, 'quote-widget': true
+  }
 });
+// Back-fill missing widget keys for users upgrading from old saved settings
+['widget-lofi','widget-weather','widget-clocks','widget-pomodoro','widget-todo','widget-links','widget-notes','quote-widget']
+  .forEach(k => { if (settings.widgets[k] === undefined) settings.widgets[k] = true; });
+
+const saveSettings = () => ls.set('settings', settings);
+
 const applySettings = () => {
   document.body.dataset.theme  = settings.theme;
   document.body.dataset.accent = settings.accent;
-  // theme buttons
   document.querySelectorAll('[data-theme-btn]').forEach(b => b.classList.toggle('active', b.dataset.themeBtn === settings.theme));
-  // fmt buttons
   document.querySelectorAll('[data-fmt-btn]').forEach(b => b.classList.toggle('active', b.dataset.fmtBtn === settings.fmt));
-  // swatches
   document.querySelectorAll('.swatch').forEach(s => s.classList.toggle('active', s.dataset.accent === settings.accent));
-  // name
   $('setting-name').value = settings.name;
-  // widget toggles
   document.querySelectorAll('[data-widget]').forEach(btn => {
     const id = btn.dataset.widget;
     const on = settings.widgets[id] !== false;
     btn.classList.toggle('on', on);
-    const el = $(id) || document.querySelector('#'+id);
-    if(el) el.classList.toggle('hidden', !on);
+    const el = $(id);
+    if (el) el.classList.toggle('hidden', !on);
   });
   updateGreeting();
 };
-const saveSettings = () => ls.set('settings', settings);
 
-// ── BACKGROUND ───────────────────────────────────────────────
-// Free high-quality Pexels images (direct .jpeg URLs, no API key)
+/* ── BACKGROUND ──────────────────────────────────────────────────── */
 const BG_IMAGES = [
   'https://images.pexels.com/photos/1624496/pexels-photo-1624496.jpeg?auto=compress&cs=tinysrgb&w=1920',
   'https://images.pexels.com/photos/36717/amazing-animal-beautiful-beautifull.jpg?auto=compress&cs=tinysrgb&w=1920',
@@ -854,25 +604,71 @@ const BG_IMAGES = [
   'https://images.pexels.com/photos/3061171/pexels-photo-3061171.jpeg?auto=compress&cs=tinysrgb&w=1920',
   'https://images.pexels.com/photos/1323550/pexels-photo-1323550.jpeg?auto=compress&cs=tinysrgb&w=1920'
 ];
-const initBackground = () => {
-  const today = todayKey();
-  let idx = ls.get('bg_idx', 0);
-  let lastDate = ls.get('bg_date', '');
-  if(lastDate !== today) {
+
+/** Update the small status text inside settings drawer. */
+const updateBgStatusText = () => {
+  const el = $('bg-status');
+  if (el) el.textContent = ls.get('custom_bg', null) ? '✓ Custom image active' : 'Rotating Pexels images (daily)';
+};
+
+/** Apply whichever background is active (custom or daily Pexels). */
+const applyBackground = () => {
+  const customBg = ls.get('custom_bg', null);
+  if (customBg) {
+    $('bg-layer').style.backgroundImage = `url('${customBg}')`;
+    $('custom-bg-indicator').classList.add('visible');
+    updateBgStatusText();
+    return;
+  }
+  $('custom-bg-indicator').classList.remove('visible');
+  const today    = todayKey();
+  let idx        = ls.get('bg_idx', 0);
+  let lastDate   = ls.get('bg_date', '');
+  if (lastDate !== today) {
     idx = (idx + 1) % BG_IMAGES.length;
     ls.set('bg_idx', idx);
     ls.set('bg_date', today);
   }
   $('bg-layer').style.backgroundImage = `url('${BG_IMAGES[idx]}')`;
+  updateBgStatusText();
 };
 
-// ── CLOCK & DATE ─────────────────────────────────────────────
+/** Read an image File, convert to base64, persist, and apply. */
+const handleBgUpload = file => {
+  if (!file || !file.type.startsWith('image/')) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      ls.set('custom_bg', e.target.result);
+      applyBackground();
+    } catch (err) {
+      // Likely storage quota exceeded — clear and fall back
+      ls.del('custom_bg');
+      applyBackground();
+      alert('Could not save — image is too large for localStorage. Please use an image under ~3 MB.');
+    }
+  };
+  reader.readAsDataURL(file);
+};
+
+const resetBackground = () => { ls.del('custom_bg'); applyBackground(); };
+
+// ── Background button wiring ──
+$('bg-upload-btn').addEventListener('click', () => $('bg-file-input').click());
+$('bg-file-input').addEventListener('change', e => {
+  if (e.target.files && e.target.files[0]) handleBgUpload(e.target.files[0]);
+  e.target.value = ''; // allow re-selecting same file
+});
+$('custom-bg-reset').addEventListener('click', resetBackground);
+$('settings-reset-bg-btn').addEventListener('click', resetBackground);
+$('settings-upload-bg-btn').addEventListener('click', () => $('bg-file-input').click());
+
+/* ── CLOCK & DATE ────────────────────────────────────────────────── */
 const DAYS   = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
 const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
-const pad2   = n => String(n).padStart(2,'0');
 
 const formatTime = (d, fmt24) => {
-  if(fmt24) return `${pad2(d.getHours())}:${pad2(d.getMinutes())}`;
+  if (fmt24) return `${pad2(d.getHours())}:${pad2(d.getMinutes())}`;
   let h = d.getHours(), ampm = h >= 12 ? 'PM' : 'AM';
   h = h % 12 || 12;
   return `${pad2(h)}:${pad2(d.getMinutes())} ${ampm}`;
@@ -889,75 +685,71 @@ const updateClock = () => {
   const fmt24 = settings.fmt === '24';
   $('clock').textContent = formatTime(d, fmt24);
   $('date-display').textContent = `${DAYS[d.getDay()]}, ${d.getDate()} ${MONTHS[d.getMonth()]} ${d.getFullYear()}`;
-  if(focusModeActive) $('focus-mode-clock').textContent = formatTime(d, fmt24);
+  if (focusModeActive) $('focus-mode-clock').textContent = formatTime(d, fmt24);
 };
 
-// ── QUOTES ───────────────────────────────────────────────────
+/* ── QUOTES ──────────────────────────────────────────────────────── */
 const QUOTES = [
-  { text: "The secret of getting ahead is getting started.", author: "Mark Twain" },
-  { text: "It does not matter how slowly you go as long as you do not stop.", author: "Confucius" },
-  { text: "Everything you've ever wanted is on the other side of fear.", author: "George Addair" },
-  { text: "Success is not final, failure is not fatal: it is the courage to continue that counts.", author: "Winston Churchill" },
-  { text: "Hardships often prepare ordinary people for an extraordinary destiny.", author: "C.S. Lewis" },
-  { text: "Believe you can and you're halfway there.", author: "Theodore Roosevelt" },
-  { text: "Act as if what you do makes a difference. It does.", author: "William James" },
-  { text: "What lies behind us and what lies before us are tiny matters compared to what lies within us.", author: "Ralph Waldo Emerson" },
-  { text: "The only way to do great work is to love what you do.", author: "Steve Jobs" },
-  { text: "You miss 100% of the shots you don't take.", author: "Wayne Gretzky" },
-  { text: "Whether you think you can or you think you can't, you're right.", author: "Henry Ford" },
-  { text: "The future belongs to those who believe in the beauty of their dreams.", author: "Eleanor Roosevelt" },
-  { text: "In the middle of every difficulty lies opportunity.", author: "Albert Einstein" },
-  { text: "It always seems impossible until it's done.", author: "Nelson Mandela" },
-  { text: "Do not wait to strike till the iron is hot; make it hot by striking.", author: "William Butler Yeats" },
-  { text: "Keep your face always toward the sunshine, and shadows will fall behind you.", author: "Walt Whitman" },
-  { text: "The only limit to our realization of tomorrow will be our doubts of today.", author: "Franklin D. Roosevelt" },
-  { text: "Start where you are. Use what you have. Do what you can.", author: "Arthur Ashe" },
-  { text: "Life is what happens when you're busy making other plans.", author: "John Lennon" },
-  { text: "You are never too old to set another goal or to dream a new dream.", author: "C.S. Lewis" },
-  { text: "The way to get started is to quit talking and begin doing.", author: "Walt Disney" },
-  { text: "Don't watch the clock; do what it does. Keep going.", author: "Sam Levenson" },
-  { text: "Too many of us are not living our dreams because we are living our fears.", author: "Les Brown" },
-  { text: "I have not failed. I've just found 10,000 ways that won't work.", author: "Thomas Edison" },
-  { text: "A person who never made a mistake never tried anything new.", author: "Albert Einstein" },
-  { text: "The best time to plant a tree was 20 years ago. The second best time is now.", author: "Chinese Proverb" },
-  { text: "An unexamined life is not worth living.", author: "Socrates" },
-  { text: "Spread love everywhere you go. Let no one ever come to you without leaving happier.", author: "Mother Teresa" },
-  { text: "When you reach the end of your rope, tie a knot in it and hang on.", author: "Franklin D. Roosevelt" },
-  { text: "Always remember that you are absolutely unique. Just like everyone else.", author: "Margaret Mead" }
+  {text:"The secret of getting ahead is getting started.",author:"Mark Twain"},
+  {text:"It does not matter how slowly you go as long as you do not stop.",author:"Confucius"},
+  {text:"Everything you've ever wanted is on the other side of fear.",author:"George Addair"},
+  {text:"Success is not final, failure is not fatal: it is the courage to continue that counts.",author:"Winston Churchill"},
+  {text:"Hardships often prepare ordinary people for an extraordinary destiny.",author:"C.S. Lewis"},
+  {text:"Believe you can and you're halfway there.",author:"Theodore Roosevelt"},
+  {text:"Act as if what you do makes a difference. It does.",author:"William James"},
+  {text:"What lies behind us and what lies before us are tiny matters compared to what lies within us.",author:"Ralph Waldo Emerson"},
+  {text:"The only way to do great work is to love what you do.",author:"Steve Jobs"},
+  {text:"You miss 100% of the shots you don't take.",author:"Wayne Gretzky"},
+  {text:"Whether you think you can or you think you can't, you're right.",author:"Henry Ford"},
+  {text:"The future belongs to those who believe in the beauty of their dreams.",author:"Eleanor Roosevelt"},
+  {text:"In the middle of every difficulty lies opportunity.",author:"Albert Einstein"},
+  {text:"It always seems impossible until it's done.",author:"Nelson Mandela"},
+  {text:"Do not wait to strike till the iron is hot; make it hot by striking.",author:"William Butler Yeats"},
+  {text:"Keep your face always toward the sunshine, and shadows will fall behind you.",author:"Walt Whitman"},
+  {text:"The only limit to our realization of tomorrow will be our doubts of today.",author:"Franklin D. Roosevelt"},
+  {text:"Start where you are. Use what you have. Do what you can.",author:"Arthur Ashe"},
+  {text:"Life is what happens when you're busy making other plans.",author:"John Lennon"},
+  {text:"You are never too old to set another goal or to dream a new dream.",author:"C.S. Lewis"},
+  {text:"The way to get started is to quit talking and begin doing.",author:"Walt Disney"},
+  {text:"Don't watch the clock; do what it does. Keep going.",author:"Sam Levenson"},
+  {text:"Too many of us are not living our dreams because we are living our fears.",author:"Les Brown"},
+  {text:"I have not failed. I've just found 10,000 ways that won't work.",author:"Thomas Edison"},
+  {text:"A person who never made a mistake never tried anything new.",author:"Albert Einstein"},
+  {text:"The best time to plant a tree was 20 years ago. The second best time is now.",author:"Chinese Proverb"},
+  {text:"An unexamined life is not worth living.",author:"Socrates"},
+  {text:"Spread love everywhere you go. Let no one ever come to you without leaving happier.",author:"Mother Teresa"},
+  {text:"When you reach the end of your rope, tie a knot in it and hang on.",author:"Franklin D. Roosevelt"},
+  {text:"Always remember that you are absolutely unique. Just like everyone else.",author:"Margaret Mead"}
 ];
 
 let currentQuoteIdx = 0;
 const initQuote = () => {
   const today = todayKey();
-  let saved = ls.get('quote', null);
-  if(saved && saved.date === today) {
-    currentQuoteIdx = saved.idx;
-  } else {
-    currentQuoteIdx = Math.floor(Math.random() * QUOTES.length);
-    ls.set('quote', { date: today, idx: currentQuoteIdx });
-  }
+  const saved = ls.get('quote', null);
+  if (saved && saved.date === today) currentQuoteIdx = saved.idx;
+  else { currentQuoteIdx = Math.floor(Math.random() * QUOTES.length); ls.set('quote', {date: today, idx: currentQuoteIdx}); }
   renderQuote();
 };
 const renderQuote = () => {
   const q = QUOTES[currentQuoteIdx];
-  $('quote-text').textContent = `"${q.text}"`;
+  $('quote-text').textContent   = `"${q.text}"`;
   $('quote-author').textContent = `— ${q.author}`;
 };
 $('quote-next').addEventListener('click', () => {
   currentQuoteIdx = (currentQuoteIdx + 1) % QUOTES.length;
-  ls.set('quote', { date: todayKey(), idx: currentQuoteIdx });
+  ls.set('quote', {date: todayKey(), idx: currentQuoteIdx});
   renderQuote();
 });
 
-// ── TODAY'S FOCUS ─────────────────────────────────────────────
+/* ── TODAY'S FOCUS ───────────────────────────────────────────────── */
 const initFocus = () => {
-  const data = ls.get('focus', { text: '', done: false });
-  $('focus-input').value = data.text;
+  const data = ls.get('focus', {text: '', done: false});
+  $('focus-input').value      = data.text;
   $('focus-mode-input').value = data.text;
   updateFocusDoneBtn(data.done);
 };
 const saveFocus = () => {
-  const data = { text: $('focus-input').value, done: $('focus-done-btn').classList.contains('completed') };
+  const data = {text: $('focus-input').value, done: $('focus-done-btn').classList.contains('completed')};
   ls.set('focus', data);
   $('focus-mode-input').value = $('focus-input').value;
 };
@@ -967,196 +759,215 @@ const updateFocusDoneBtn = done => {
 };
 $('focus-input').addEventListener('input', saveFocus);
 $('focus-done-btn').addEventListener('click', () => {
-  const d = ls.get('focus', {});
-  d.done = !d.done;
-  ls.set('focus', d);
-  updateFocusDoneBtn(d.done);
+  const d = ls.get('focus', {}); d.done = !d.done; ls.set('focus', d); updateFocusDoneBtn(d.done);
 });
 $('focus-mode-input').addEventListener('input', () => {
-  $('focus-input').value = $('focus-mode-input').value;
-  saveFocus();
+  $('focus-input').value = $('focus-mode-input').value; saveFocus();
 });
 
-// ── TODO ─────────────────────────────────────────────────────
+/* ── TODO ────────────────────────────────────────────────────────── */
 let todos = ls.get('todos', []);
-const saveTodos = () => ls.set('todos', todos);
+const saveTodos   = () => ls.set('todos', todos);
 const renderTodos = () => {
   const ul = $('todo-list'); ul.innerHTML = '';
   todos.forEach((t, i) => {
     const li = document.createElement('li');
     li.className = 'todo-item' + (t.done ? ' done' : '');
-    li.innerHTML = `
-      <div class="todo-check" data-i="${i}"></div>
-      <span class="todo-text">${escHtml(t.text)}</span>
-      <span class="todo-del" data-i="${i}">✕</span>`;
+    li.innerHTML = `<div class="todo-check" data-i="${i}"></div><span class="todo-text">${escHtml(t.text)}</span><span class="todo-del" data-i="${i}">✕</span>`;
     ul.appendChild(li);
   });
   ul.querySelectorAll('.todo-check').forEach(el => el.addEventListener('click', () => { todos[+el.dataset.i].done = !todos[+el.dataset.i].done; saveTodos(); renderTodos(); }));
-  ul.querySelectorAll('.todo-del').forEach(el => el.addEventListener('click', () => { todos.splice(+el.dataset.i,1); saveTodos(); renderTodos(); }));
+  ul.querySelectorAll('.todo-del').forEach(el  => el.addEventListener('click', () => { todos.splice(+el.dataset.i, 1); saveTodos(); renderTodos(); }));
 };
 const addTodo = () => {
-  const v = $('todo-input').value.trim();
-  if(!v) return;
-  todos.push({ text: v, done: false });
-  saveTodos(); renderTodos();
-  $('todo-input').value = '';
+  const v = $('todo-input').value.trim(); if (!v) return;
+  todos.push({text: v, done: false}); saveTodos(); renderTodos(); $('todo-input').value = '';
 };
 $('todo-add-btn').addEventListener('click', addTodo);
 $('todo-input').addEventListener('keydown', e => e.key === 'Enter' && addTodo());
 $('todo-clear').addEventListener('click', () => { todos = todos.filter(t => !t.done); saveTodos(); renderTodos(); });
 
-// ── QUICK LINKS ───────────────────────────────────────────────
+/* ── QUICK LINKS ─────────────────────────────────────────────────── */
 let links = ls.get('links', [
-  { label: 'Gmail', url: 'https://mail.google.com' },
-  { label: 'GitHub', url: 'https://github.com' },
-  { label: 'YouTube', url: 'https://youtube.com' }
+  {label: 'Gmail',   url: 'https://mail.google.com'},
+  {label: 'GitHub',  url: 'https://github.com'},
+  {label: 'YouTube', url: 'https://youtube.com'}
 ]);
-const saveLinks = () => ls.set('links', links);
+const saveLinks   = () => ls.set('links', links);
 const renderLinks = () => {
   const g = $('links-grid'); g.innerHTML = '';
   links.forEach((l, i) => {
-    const d = document.createElement('div');
-    d.className = 'link-chip';
+    const d = document.createElement('div'); d.className = 'link-chip';
     d.innerHTML = `<a href="${escHtml(l.url)}" target="_blank" rel="noopener">${escHtml(l.label)}</a><span class="link-chip-del" data-i="${i}">✕</span>`;
-    d.querySelector('.link-chip-del').addEventListener('click', () => { links.splice(i,1); saveLinks(); renderLinks(); });
+    d.querySelector('.link-chip-del').addEventListener('click', () => { links.splice(i, 1); saveLinks(); renderLinks(); });
     g.appendChild(d);
   });
 };
 const addLink = () => {
   const label = $('link-label-input').value.trim();
-  let url = $('link-url-input').value.trim();
-  if(!label || !url) return;
-  if(!/^https?:\/\//i.test(url)) url = 'https://'+url;
-  links.push({ label, url });
-  saveLinks(); renderLinks();
-  $('link-label-input').value = '';
-  $('link-url-input').value = '';
+  let   url   = $('link-url-input').value.trim();
+  if (!label || !url) return;
+  if (!/^https?:\/\//i.test(url)) url = 'https://' + url;
+  links.push({label, url}); saveLinks(); renderLinks();
+  $('link-label-input').value = ''; $('link-url-input').value = '';
 };
 $('link-add-btn').addEventListener('click', addLink);
 $('link-url-input').addEventListener('keydown', e => e.key === 'Enter' && addLink());
 
-// ── NOTES ─────────────────────────────────────────────────────
+/* ── NOTES ───────────────────────────────────────────────────────── */
 $('notes-textarea').value = ls.get('notes', '');
 $('notes-textarea').addEventListener('input', () => ls.set('notes', $('notes-textarea').value));
 
-// ── POMODORO ──────────────────────────────────────────────────
-const POMO = { FOCUS: 25*60, BREAK: 5*60 };
-let pomoState = {
-  mode: 'focus',   // 'focus' | 'break'
-  total: POMO.FOCUS,
-  remaining: POMO.FOCUS,
-  running: false,
-  interval: null
-};
+/* ── POMODORO ────────────────────────────────────────────────────── */
+const POMO = {FOCUS: 25 * 60, BREAK: 5 * 60};
+let pomoState = {mode: 'focus', total: POMO.FOCUS, remaining: POMO.FOCUS, running: false, interval: null};
+
 const renderPomo = () => {
-  const m = Math.floor(pomoState.remaining / 60);
-  const s = pomoState.remaining % 60;
+  const m = Math.floor(pomoState.remaining / 60), s = pomoState.remaining % 60;
   const str = `${pad2(m)}:${pad2(s)}`;
-  $('pomo-display').textContent = str;
-  $('focus-pomo-display').textContent = str;
+  $('pomo-display').textContent = str; $('focus-pomo-display').textContent = str;
   const modeLabel = pomoState.mode === 'focus' ? 'Focus' : 'Break';
-  const modeCap = pomoState.mode === 'focus' ? '25:00' : '5:00';
-  $('pomo-mode').textContent = `${modeLabel} — ${modeCap}`;
-  $('focus-pomo-mode').textContent = `${modeLabel} — ${modeCap}`;
-  const pct = (pomoState.remaining / pomoState.total) * 100;
-  $('pomo-progress-bar').style.width = pct + '%';
-  const startBtn = $('pomo-start');
-  startBtn.textContent = pomoState.running ? 'Pause' : 'Start';
-  startBtn.classList.toggle('active', pomoState.running);
+  const modeCap   = pomoState.mode === 'focus' ? '25:00' : '5:00';
+  $('pomo-mode').textContent = `${modeLabel} — ${modeCap}`; $('focus-pomo-mode').textContent = `${modeLabel} — ${modeCap}`;
+  $('pomo-progress-bar').style.width = ((pomoState.remaining / pomoState.total) * 100) + '%';
+  $('pomo-start').textContent = pomoState.running ? 'Pause' : 'Start';
+  $('pomo-start').classList.toggle('active', pomoState.running);
 };
 const pomoTick = () => {
-  if(pomoState.remaining <= 0) {
-    clearInterval(pomoState.interval);
-    pomoState.running = false;
-    const label = pomoState.mode === 'focus' ? 'Focus session complete! Take a break.' : 'Break over! Ready to focus?';
-    alert(label);
-    // Auto switch
-    pomoState.mode = pomoState.mode === 'focus' ? 'break' : 'focus';
-    pomoState.total = pomoState.mode === 'focus' ? POMO.FOCUS : POMO.BREAK;
+  if (pomoState.remaining <= 0) {
+    clearInterval(pomoState.interval); pomoState.running = false;
+    alert(pomoState.mode === 'focus' ? 'Focus session complete! Take a break.' : 'Break over! Ready to focus?');
+    pomoState.mode      = pomoState.mode === 'focus' ? 'break' : 'focus';
+    pomoState.total     = pomoState.mode === 'focus' ? POMO.FOCUS : POMO.BREAK;
     pomoState.remaining = pomoState.total;
-  } else {
-    pomoState.remaining--;
-  }
+  } else { pomoState.remaining--; }
   renderPomo();
 };
 $('pomo-start').addEventListener('click', () => {
-  if(pomoState.running) {
-    clearInterval(pomoState.interval);
-    pomoState.running = false;
-  } else {
-    pomoState.running = true;
-    pomoState.interval = setInterval(pomoTick, 1000);
-  }
+  if (pomoState.running) { clearInterval(pomoState.interval); pomoState.running = false; }
+  else { pomoState.running = true; pomoState.interval = setInterval(pomoTick, 1000); }
   renderPomo();
 });
-$('pomo-reset').addEventListener('click', () => {
-  clearInterval(pomoState.interval);
-  pomoState.running = false;
-  pomoState.remaining = pomoState.total;
-  renderPomo();
-});
+$('pomo-reset').addEventListener('click', () => { clearInterval(pomoState.interval); pomoState.running = false; pomoState.remaining = pomoState.total; renderPomo(); });
 $('pomo-skip').addEventListener('click', () => {
-  clearInterval(pomoState.interval);
-  pomoState.running = false;
+  clearInterval(pomoState.interval); pomoState.running = false;
   pomoState.mode = pomoState.mode === 'focus' ? 'break' : 'focus';
   pomoState.total = pomoState.mode === 'focus' ? POMO.FOCUS : POMO.BREAK;
-  pomoState.remaining = pomoState.total;
-  renderPomo();
+  pomoState.remaining = pomoState.total; renderPomo();
 });
 
-// ── WEATHER ───────────────────────────────────────────────────
-const WMO_CODES = {
-  0:'Clear sky',1:'Mainly clear',2:'Partly cloudy',3:'Overcast',
-  45:'Fog',48:'Icy fog',51:'Light drizzle',53:'Drizzle',55:'Heavy drizzle',
-  61:'Slight rain',63:'Moderate rain',65:'Heavy rain',
-  71:'Slight snow',73:'Moderate snow',75:'Heavy snow',
-  80:'Slight showers',81:'Showers',82:'Heavy showers',
-  95:'Thunderstorm',96:'Thunderstorm w/ hail',99:'Heavy thunderstorm'
-};
-const WMO_ICONS = {
-  0:'☀️',1:'🌤',2:'⛅',3:'☁️',45:'🌫',48:'🌫',
-  51:'🌦',53:'🌦',55:'🌧',61:'🌧',63:'🌧',65:'🌧',
-  71:'🌨',73:'❄️',75:'❄️',80:'🌦',81:'🌧',82:'⛈',
-  95:'⛈',96:'⛈',99:'⛈'
-};
+/* ── WEATHER ─────────────────────────────────────────────────────── */
+const WMO_CODES = {0:'Clear sky',1:'Mainly clear',2:'Partly cloudy',3:'Overcast',45:'Fog',48:'Icy fog',51:'Light drizzle',53:'Drizzle',55:'Heavy drizzle',61:'Slight rain',63:'Moderate rain',65:'Heavy rain',71:'Slight snow',73:'Moderate snow',75:'Heavy snow',80:'Slight showers',81:'Showers',82:'Heavy showers',95:'Thunderstorm',96:'Thunderstorm w/ hail',99:'Heavy thunderstorm'};
+const WMO_ICONS = {0:'☀️',1:'🌤',2:'⛅',3:'☁️',45:'🌫',48:'🌫',51:'🌦',53:'🌦',55:'🌧',61:'🌧',63:'🌧',65:'🌧',71:'🌨',73:'❄️',75:'❄️',80:'🌦',81:'🌧',82:'⛈',95:'⛈',96:'⛈',99:'⛈'};
 const fetchWeather = async () => {
   try {
     const r = await fetch('https://api.open-meteo.com/v1/forecast?latitude=1.3521&longitude=103.8198&current=temperature_2m,weathercode,windspeed_10m&timezone=Asia%2FSingapore');
-    const d = await r.json();
-    const c = d.current;
-    const code = c.weathercode;
-    $('weather-temp').textContent = `${Math.round(c.temperature_2m)}°C`;
-    $('weather-icon').textContent = WMO_ICONS[code] || '🌡';
+    const d = await r.json(); const c = d.current; const code = c.weathercode;
+    $('weather-temp').textContent      = `${Math.round(c.temperature_2m)}°C`;
+    $('weather-icon').textContent      = WMO_ICONS[code] || '🌡';
     $('weather-condition').textContent = WMO_CODES[code] || 'Unknown';
-    $('weather-info').textContent = `Wind: ${Math.round(c.windspeed_10m)} km/h`;
-  } catch(e) {
-    $('weather-condition').textContent = 'Unavailable';
-  }
+    $('weather-info').textContent      = `Wind: ${Math.round(c.windspeed_10m)} km/h`;
+  } catch { $('weather-condition').textContent = 'Unavailable'; }
 };
 
-// ── WORLD CLOCKS ─────────────────────────────────────────────
+/* ── WORLD CLOCKS ────────────────────────────────────────────────── */
 const ZONES = [
-  { id: 'wc-sgp', tz: 'Asia/Singapore' },
-  { id: 'wc-lon', tz: 'Europe/London' },
-  { id: 'wc-nyc', tz: 'America/New_York' },
-  { id: 'wc-tyo', tz: 'Asia/Tokyo' }
+  {id:'wc-sgp', tz:'Asia/Singapore'}, {id:'wc-lon', tz:'Europe/London'},
+  {id:'wc-nyc', tz:'America/New_York'}, {id:'wc-tyo', tz:'Asia/Tokyo'}
 ];
 const updateWorldClocks = () => {
-  const fmt24 = settings.fmt === '24';
-  const now = new Date();
+  const fmt24 = settings.fmt === '24'; const now = new Date();
   ZONES.forEach(z => {
-    try {
-      const str = now.toLocaleTimeString('en-SG', {
-        timeZone: z.tz,
-        hour: '2-digit', minute: '2-digit',
-        hour12: !fmt24
-      });
-      $(z.id).textContent = str;
-    } catch {}
+    try { $(z.id).textContent = now.toLocaleTimeString('en-SG', {timeZone: z.tz, hour: '2-digit', minute: '2-digit', hour12: !fmt24}); } catch {}
   });
 };
 
-// ── FOCUS MODE ────────────────────────────────────────────────
+/* ── LOFI MUSIC PLAYER ───────────────────────────────────────────── */
+/*
+ * Strategy: The YouTube embed URL is only injected into the iframe src
+ * when the user presses Play (requires a user gesture for autoplay).
+ * Switching stations or toggling mute briefly blanks the src first,
+ * then reloads, ensuring the new stream starts cleanly.
+ *
+ * YouTube IDs:
+ *   jfKfPfyJRdk  — Lofi Girl
+ *   4xDzrJKXOOY  — Synthwave Radio
+ *   rUxyKA_-grg  — Chillhop Music
+ */
+const STATIONS = [
+  {id: 'jfKfPfyJRdk', name: 'Lofi Girl — beats to relax/study'},
+  {id: '4xDzrJKXOOY', name: 'Synthwave Radio'},
+  {id: 'rUxyKA_-grg', name: 'Chillhop Music'}
+];
+
+// Load persisted lofi state (but never auto-play on reload — needs user gesture)
+const _savedLofi = ls.get('lofi', {});
+let lofiState = {
+  playing    : false,                          // always false on load
+  stationIdx : _savedLofi.stationIdx || 0,
+  muted      : _savedLofi.muted      || false
+};
+
+const saveLofi = () => ls.set('lofi', {stationIdx: lofiState.stationIdx, muted: lofiState.muted, playing: lofiState.playing});
+
+/** Build the embed URL for a given station. */
+const buildSrc = (idx, muted) => {
+  const vid = STATIONS[idx].id;
+  return `https://www.youtube.com/embed/${vid}?autoplay=1&mute=${muted ? 1 : 0}&controls=0&loop=1&playlist=${vid}&rel=0`;
+};
+
+/** Re-render all lofi UI elements and manage iframe src. */
+const renderLofi = () => {
+  // Station buttons
+  document.querySelectorAll('.lofi-station-btn').forEach((btn, i) => btn.classList.toggle('active', i === lofiState.stationIdx));
+  // Play button icon
+  $('lofi-play-btn').textContent = lofiState.playing ? '⏸' : '▶';
+  // Station name
+  $('lofi-station-name').textContent = STATIONS[lofiState.stationIdx].name;
+  // Mute icon
+  $('lofi-mute-btn').textContent = lofiState.muted ? '🔇' : '🔊';
+  $('lofi-mute-btn').classList.toggle('muted', lofiState.muted);
+  // Equalizer
+  $('lofi-eq').classList.toggle('paused', !lofiState.playing);
+  // Iframe — load only when playing, blank when stopped
+  const iframe = $('lofi-iframe');
+  if (lofiState.playing) {
+    const src = buildSrc(lofiState.stationIdx, lofiState.muted);
+    if (iframe.src !== src) iframe.src = src;
+  } else {
+    iframe.src = 'about:blank';
+  }
+  saveLofi();
+};
+
+/** Reload the iframe: blank first, then restore after a short delay. */
+const reloadStream = () => {
+  $('lofi-iframe').src = 'about:blank';
+  setTimeout(renderLofi, 120);
+};
+
+// Play / Pause
+$('lofi-play-btn').addEventListener('click', () => {
+  lofiState.playing = !lofiState.playing;
+  renderLofi();
+});
+
+// Station selector
+document.querySelectorAll('.lofi-station-btn').forEach((btn, i) => {
+  btn.addEventListener('click', () => {
+    if (lofiState.stationIdx === i) return; // already selected
+    lofiState.stationIdx = i;
+    if (lofiState.playing) reloadStream(); else renderLofi();
+  });
+});
+
+// Mute toggle
+$('lofi-mute-btn').addEventListener('click', () => {
+  lofiState.muted = !lofiState.muted;
+  if (lofiState.playing) reloadStream(); else renderLofi();
+});
+
+/* ── FOCUS MODE ──────────────────────────────────────────────────── */
 let focusModeActive = false;
 const overlay = $('focus-mode-overlay');
 $('focus-mode-btn').addEventListener('click', () => {
@@ -1165,83 +976,55 @@ $('focus-mode-btn').addEventListener('click', () => {
   $('focus-mode-btn').textContent = focusModeActive ? '⊗' : '⊙';
 });
 $('focus-mode-exit').addEventListener('click', () => {
-  focusModeActive = false;
-  overlay.classList.remove('active');
-  $('focus-mode-btn').textContent = '⊙';
+  focusModeActive = false; overlay.classList.remove('active'); $('focus-mode-btn').textContent = '⊙';
 });
 
-// ── THEME TOGGLE ─────────────────────────────────────────────
+/* ── THEME TOGGLE ────────────────────────────────────────────────── */
 $('theme-toggle').addEventListener('click', () => {
-  settings.theme = settings.theme === 'dark' ? 'light' : 'dark';
-  saveSettings(); applySettings();
+  settings.theme = settings.theme === 'dark' ? 'light' : 'dark'; saveSettings(); applySettings();
 });
 
-// ── SETTINGS PANEL ───────────────────────────────────────────
+/* ── SETTINGS PANEL ──────────────────────────────────────────────── */
 const settingsPanel = $('settings-panel');
-$('settings-btn').addEventListener('click', () => settingsPanel.classList.add('open'));
+$('settings-btn').addEventListener('click',      () => settingsPanel.classList.add('open'));
 $('settings-backdrop').addEventListener('click', () => settingsPanel.classList.remove('open'));
-$('settings-close').addEventListener('click', () => settingsPanel.classList.remove('open'));
+$('settings-close').addEventListener('click',    () => settingsPanel.classList.remove('open'));
 
-// Name
 $('setting-name').addEventListener('input', () => {
-  settings.name = $('setting-name').value || 'Juven Lim';
-  saveSettings(); updateGreeting();
+  settings.name = $('setting-name').value || 'Juven Lim'; saveSettings(); updateGreeting();
 });
-// Theme buttons
-document.querySelectorAll('[data-theme-btn]').forEach(b => {
-  b.addEventListener('click', () => {
-    settings.theme = b.dataset.themeBtn;
-    saveSettings(); applySettings();
-  });
-});
-// Format buttons
-document.querySelectorAll('[data-fmt-btn]').forEach(b => {
-  b.addEventListener('click', () => {
-    settings.fmt = b.dataset.fmtBtn;
-    saveSettings(); applySettings(); updateClock(); updateWorldClocks();
-  });
-});
-// Accent swatches
-document.querySelectorAll('.swatch').forEach(s => {
-  s.addEventListener('click', () => {
-    settings.accent = s.dataset.accent;
-    saveSettings(); applySettings();
-  });
-});
-// Widget toggles
-document.querySelectorAll('[data-widget]').forEach(btn => {
-  btn.addEventListener('click', () => {
-    const id = btn.dataset.widget;
-    settings.widgets[id] = !settings.widgets[id];
-    saveSettings(); applySettings();
-  });
-});
+document.querySelectorAll('[data-theme-btn]').forEach(b => b.addEventListener('click', () => {
+  settings.theme = b.dataset.themeBtn; saveSettings(); applySettings();
+}));
+document.querySelectorAll('[data-fmt-btn]').forEach(b => b.addEventListener('click', () => {
+  settings.fmt = b.dataset.fmtBtn; saveSettings(); applySettings(); updateClock(); updateWorldClocks();
+}));
+document.querySelectorAll('.swatch').forEach(s => s.addEventListener('click', () => {
+  settings.accent = s.dataset.accent; saveSettings(); applySettings();
+}));
+document.querySelectorAll('[data-widget]').forEach(btn => btn.addEventListener('click', () => {
+  const id = btn.dataset.widget; settings.widgets[id] = !settings.widgets[id]; saveSettings(); applySettings();
+}));
 
-// ── UTILITIES ─────────────────────────────────────────────────
-function escHtml(s) {
-  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-}
-
-// ── INIT ──────────────────────────────────────────────────────
+/* ── INIT ────────────────────────────────────────────────────────── */
 const init = () => {
-  initBackground();
+  applyBackground();
   applySettings();
   initQuote();
   initFocus();
   renderTodos();
   renderLinks();
   renderPomo();
+  renderLofi();
   fetchWeather();
   updateClock();
   updateWorldClocks();
   updateGreeting();
+  updateBgStatusText();
 
-  // Clock ticks every second
-  setInterval(() => { updateClock(); }, 1000);
-  // World clocks update every minute
-  setInterval(updateWorldClocks, 60000);
-  // Weather refresh every 10 minutes
-  setInterval(fetchWeather, 600000);
+  setInterval(updateClock,       1000);   // clock: every second
+  setInterval(updateWorldClocks, 60000);  // world clocks: every minute
+  setInterval(fetchWeather,      600000); // weather: every 10 minutes
 };
 
 document.addEventListener('DOMContentLoaded', init);
