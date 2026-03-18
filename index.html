@@ -115,27 +115,34 @@ ul{list-style:none;}
   text-align:center;
 }
 #greeting{
-  font-family:var(--fd);font-size:clamp(1.1rem,2.5vw,1.55rem);
-  font-weight:300;font-style:italic;color:var(--text-muted);
-  letter-spacing:0.04em;margin-bottom:6px;
+  font-family:var(--fd);font-size:clamp(1.6rem,3.5vw,2.4rem);
+  font-weight:600;font-style:italic;
+  color:rgba(240,240,245,0.88);
+  text-shadow:0 1px 16px rgba(0,0,0,0.6);
+  letter-spacing:0.02em;margin-bottom:-8px;
   animation:fadeUp 0.7s var(--ease) 0.1s both;
 }
+[data-theme="light"] #greeting{color:rgba(26,26,34,0.82);text-shadow:0 1px 8px rgba(255,255,255,0.7);}
 #clock{
   font-family:var(--fd);font-size:clamp(5rem,16vw,10.5rem);
-  font-weight:300;letter-spacing:-0.03em;line-height:130%;color:var(--text);
-  text-shadow:0 0 100px rgba(var(--accent-rgb),0.18);user-select:none;
+  font-weight:300;letter-spacing:-0.03em;line-height:1;color:var(--text);
+  text-shadow:0 2px 40px rgba(0,0,0,0.5),0 0 100px rgba(var(--accent-rgb),0.18);user-select:none;
   animation:fadeUp 0.7s var(--ease) 0.15s both;
 }
 #date-display{
-  font-size:clamp(0.75rem,1.8vw,0.9rem);font-weight:300;
-  color:var(--text-muted);letter-spacing:0.1em;margin-top:6px;text-transform:uppercase;
+  font-size:clamp(0.95rem,2.2vw,1.25rem);font-weight:400;
+  color:rgba(240,240,245,0.82);
+  text-shadow:0 1px 12px rgba(0,0,0,0.65);
+  letter-spacing:0.1em;margin-top:28px;text-transform:uppercase;
   animation:fadeUp 0.7s var(--ease) 0.2s both;
 }
+[data-theme="light"] #date-display{color:rgba(26,26,34,0.76);text-shadow:0 1px 6px rgba(255,255,255,0.7);}
 #hero-focus{
   margin-top:32px;width:100%;max-width:540px;
   animation:fadeUp 0.7s var(--ease) 0.28s both;
 }
-#focus-label{font-size:9px;letter-spacing:0.18em;text-transform:uppercase;color:var(--text-muted);margin-bottom:8px;text-align:left;}
+#focus-label{font-size:9px;letter-spacing:0.18em;text-transform:uppercase;color:rgba(240,240,245,0.72);text-shadow:0 1px 8px rgba(0,0,0,0.5);margin-bottom:8px;text-align:left;}
+[data-theme="light"] #focus-label{color:rgba(26,26,34,0.65);text-shadow:none;}
 #focus-row{display:flex;gap:8px;align-items:center;}
 #focus-input{
   flex:1;background:rgba(255,255,255,0.06);border:1px solid var(--border);
@@ -159,9 +166,19 @@ ul{list-style:none;}
 }
 #quote-text{
   font-family:var(--fd);font-size:clamp(0.9rem,1.8vw,1.1rem);
-  font-style:italic;font-weight:300;color:var(--text-muted);line-height:1.65;
+  font-style:italic;font-weight:300;
+  color:rgba(240,240,245,0.82);
+  text-shadow:0 1px 12px rgba(0,0,0,0.55);
+  line-height:1.65;
 }
-#quote-author{font-size:0.72rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-subtle);margin-top:8px;}
+[data-theme="light"] #quote-text{color:rgba(26,26,34,0.74);text-shadow:0 1px 6px rgba(255,255,255,0.65);}
+#quote-author{
+  font-size:0.72rem;letter-spacing:0.1em;text-transform:uppercase;
+  color:rgba(240,240,245,0.55);
+  text-shadow:0 1px 8px rgba(0,0,0,0.5);
+  margin-top:8px;
+}
+[data-theme="light"] #quote-author{color:rgba(26,26,34,0.5);text-shadow:none;}
 #quote-next{
   background:none;border:1px solid var(--border);color:var(--text-subtle);
   border-radius:20px;padding:4px 14px;font-size:0.7rem;letter-spacing:0.08em;margin-top:10px;
