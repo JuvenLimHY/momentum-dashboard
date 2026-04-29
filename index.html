@@ -8,12 +8,14 @@
     :root {
       --bg1: #182848;
       --bg2: #4b6cb7;
+      --photo-url: none;
+      --focus-bg: linear-gradient(135deg, #182848, #4b6cb7);
       --glass: rgba(255,255,255,0.14);
-      --glass-strong: rgba(255,255,255,0.22);
+      --glass-strong: rgba(255,255,255,0.24);
       --text: #ffffff;
-      --muted: rgba(255,255,255,0.76);
-      --line: rgba(255,255,255,0.20);
-      --shadow: 0 18px 60px rgba(0,0,0,0.25);
+      --muted: rgba(255,255,255,0.75);
+      --line: rgba(255,255,255,0.22);
+      --shadow: 0 18px 60px rgba(0,0,0,0.28);
       --radius: 24px;
     }
 
@@ -32,14 +34,11 @@
 
     body.image-bg {
       background:
-        linear-gradient(135deg, rgba(0,0,0,0.42), rgba(0,0,0,0.18)),
+        linear-gradient(135deg, rgba(0,0,0,0.45), rgba(0,0,0,0.18)),
         var(--photo-url) center/cover fixed;
     }
 
-    button, input, select, textarea {
-      font: inherit;
-    }
-
+    button, input, select, textarea { font: inherit; }
     button {
       cursor: pointer;
       border: 0;
@@ -47,9 +46,7 @@
       background: var(--glass);
     }
 
-    button:hover, .shortcut:hover, .panel:hover {
-      background: var(--glass-strong);
-    }
+    button:hover, .shortcut:hover, .panel:hover { background: var(--glass-strong); }
 
     .app {
       min-height: 100vh;
@@ -151,8 +148,8 @@
       font-size: clamp(20px, 4vw, 34px);
     }
 
-    .clean-input::placeholder, textarea::placeholder {
-      color: rgba(255,255,255,0.55);
+    .clean-input::placeholder, textarea::placeholder, input::placeholder {
+      color: rgba(255,255,255,0.58);
     }
 
     .icon-btn {
@@ -182,9 +179,7 @@
       box-shadow: var(--shadow);
     }
 
-    .search-wrap option {
-      color: #111;
-    }
+    .search-wrap option, .settings-input option { color: #111; }
 
     .quote {
       max-width: 760px;
@@ -208,7 +203,7 @@
       display: none;
       padding: 18px;
       border-radius: var(--radius);
-      background: rgba(10,10,18,0.62);
+      background: rgba(10,10,18,0.68);
       backdrop-filter: blur(24px);
       border: 1px solid var(--line);
       box-shadow: var(--shadow);
@@ -319,7 +314,6 @@
 
     .hidden { display: none !important; }
 
-
     .focus-overlay {
       position: fixed;
       inset: 0;
@@ -329,22 +323,102 @@
       padding: 24px;
       background:
         linear-gradient(135deg, rgba(0,0,0,0.70), rgba(0,0,0,0.38)),
-        var(--focus-bg, transparent);
+        var(--focus-bg);
+      background-size: cover;
+      background-position: center;
       backdrop-filter: blur(12px);
     }
 
-    .focus-overlay.active {
-      display: grid;
-    }
+    .focus-overlay.active { display: grid; }
 
     .focus-box {
-      width: min(760px, 100%);
+      width: min(820px, 100%);
       border-radius: 34px;
       padding: 34px;
       background: rgba(255,255,255,0.12);
       border: 1px solid rgba(255,255,255,0.22);
       box-shadow: var(--shadow);
       text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .focus-box::before {
+      content: "";
+      position: absolute;
+      inset: 18px;
+      border-radius: 28px;
+      border: 1px solid rgba(255,255,255,0.16);
+      pointer-events: none;
+    }
+
+    .focus-ring {
+      width: min(360px, 82vw);
+      aspect-ratio: 1;
+      margin: 0 auto 18px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      background:
+        conic-gradient(rgba(255,255,255,0.82) var(--progress, 0deg), rgba(255,255,255,0.18) 0deg),
+        rgba(255,255,255,0.08);
+      box-shadow: inset 0 0 0 18px rgba(255,255,255,0.08);
+    }
+
+    .focus-inner {
+      width: calc(100% - 34px);
+      aspect-ratio: 1;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      background: rgba(0,0,0,0.18);
+      backdrop-filter: blur(10px);
+    }
+
+    .focus-tabs {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 10px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .focus-tab {
+      padding: 8px 12px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,0.16);
+      color: rgba(255,255,255,0.72);
+      background: rgba(255,255,255,0.10);
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    .focus-tab.active {
+      color: white;
+      background: rgba(255,255,255,0.22);
+    }
+
+    .youtube-player {
+      width: min(520px, 100%);
+      height: 92px;
+      border: 1px solid rgba(255,255,255,0.18);
+      border-radius: 18px;
+      overflow: hidden;
+      margin: 14px auto 0;
+      background: rgba(0,0,0,0.22);
+      display: none;
+    }
+
+    .youtube-player.active {
+      display: block;
+    }
+
+    .youtube-player iframe {
+      width: 100%;
+      height: 100%;
+      border: 0;
     }
 
     .focus-status {
@@ -420,9 +494,7 @@
       margin-top: 10px;
     }
 
-    input[type="range"] {
-      width: 100%;
-    }
+    input[type="range"] { width: 100%; }
 
     @media (max-width: 760px) {
       .app { padding: 16px; }
@@ -439,7 +511,7 @@
       <div class="top-left">
         <button class="chip" data-panel="linksPanel">Links</button>
         <button class="chip" data-panel="notesPanel">Notes</button>
-        <button class="chip" id="focusModeBtn">Focus Mode</button>
+        <button class="chip" id="focusModeBtn">Deep Focus</button>
       </div>
       <div class="top-right">
         <span class="chip" id="weather">☁️ Set weather</span>
@@ -448,7 +520,7 @@
     </header>
 
     <section class="center">
-      <div class="clock" id="clock">00:00</div>
+      <div class="clock" id="clock">--:--</div>
       <div class="greeting" id="greeting">Good day</div>
 
       <form class="search-wrap" id="searchForm">
@@ -470,7 +542,6 @@
       </div>
 
       <div class="shortcut-grid" id="shortcutGrid"></div>
-
       <div class="quote" id="quote"></div>
     </section>
 
@@ -533,6 +604,40 @@
           </select>
         </div>
 
+        <div class="settings-row">
+          <label class="tiny">Pomodoro focus minutes</label>
+          <input class="settings-input" id="focusMinutesSetting" type="number" min="5" max="120" />
+        </div>
+
+        <div class="settings-row">
+          <label class="tiny">Break minutes</label>
+          <input class="settings-input" id="breakMinutesSetting" type="number" min="1" max="60" />
+        </div>
+
+        <div class="settings-row">
+          <label class="tiny">YouTube lo-fi URL</label>
+          <input class="settings-input" id="youtubeUrlSetting" placeholder="Paste YouTube live URL" />
+        </div>
+
+        <div class="settings-row">
+          <label class="tiny">Wallpaper image URL</label>
+          <input class="settings-input" id="wallpaperUrlSetting" placeholder="Paste image URL" />
+        </div>
+
+        <div class="settings-row">
+          <label class="tiny">Upload wallpaper from your computer</label>
+          <input class="file-input" id="wallpaperUpload" type="file" accept="image/*" />
+        </div>
+
+        <div class="wallpaper-grid">
+          <button class="wallpaper-btn" type="button" data-wallpaper="ocean">Ocean</button>
+          <button class="wallpaper-btn" type="button" data-wallpaper="dusk">Dusk</button>
+          <button class="wallpaper-btn" type="button" data-wallpaper="forest">Forest</button>
+          <button class="wallpaper-btn" type="button" data-wallpaper="mono">Mono</button>
+          <button class="wallpaper-btn" type="button" data-wallpaper="photo">Daily photo</button>
+          <button class="wallpaper-btn" type="button" data-wallpaper="custom">Custom</button>
+        </div>
+
         <div class="switch-row">
           <span>24-hour clock</span>
           <input type="checkbox" id="clockMode" />
@@ -548,603 +653,675 @@
           <input type="checkbox" id="showQuote" checked />
         </div>
 
-
-        <div class="settings-row">
-          <label class="tiny">Pomodoro focus minutes</label>
-          <input class="settings-input" id="focusMinutesSetting" type="number" min="5" max="120" />
-        </div>
-
-        <div class="settings-row">
-          <label class="tiny">Wallpaper image URL</label>
-          <input class="settings-input" id="wallpaperUrlSetting" placeholder="Paste image URL" />
-        </div>
-
-        <div class="settings-row">
-          <label class="tiny">Upload wallpaper from your computer</label>
-          <input class="file-input" id="wallpaperUpload" type="file" accept="image/*" />
-        </div>
-
-        <div class="wallpaper-grid">
-          <button class="wallpaper-btn" data-wallpaper="ocean">Ocean</button>
-          <button class="wallpaper-btn" data-wallpaper="dusk">Dusk</button>
-          <button class="wallpaper-btn" data-wallpaper="forest">Forest</button>
-          <button class="wallpaper-btn" data-wallpaper="mono">Mono</button>
-          <button class="wallpaper-btn" data-wallpaper="photo">Daily photo</button>
-          <button class="wallpaper-btn" data-wallpaper="custom">Custom</button>
-        </div>
-
-        <button class="primary" id="resetBtn">Reset dashboard</button>
+        <p class="tiny">For GitHub Pages: settings, tasks, and notes save per browser. Use image URLs or repo image paths for wallpapers across computers.</p>
+        <button class="primary" id="resetBtn" type="button">Reset dashboard</button>
       </section>
     </aside>
 
     <section class="focus-overlay" id="focusOverlay">
       <div class="focus-box">
         <div class="focus-status" id="focusStatus">Focusing</div>
-        <div class="focus-timer" id="focusTimer">25:00</div>
-        <div class="focus-task" id="focusTaskText">Your main focus</div>
+
+        <div class="focus-tabs">
+          <button class="focus-tab active" type="button" data-focus-mode="focus">Focus</button>
+          <button class="focus-tab" type="button" data-focus-mode="break">Break</button>
+        </div>
+
+        <div class="focus-ring" id="focusRing">
+          <div class="focus-inner">
+            <div>
+              <div class="focus-timer" id="focusTimer">25:00</div>
+              <div class="focus-task" id="focusTaskText">Your main focus</div>
+            </div>
+          </div>
+        </div>
 
         <div class="focus-controls">
-          <button class="focus-control-btn" id="startFocusTimer">Start</button>
-          <button class="focus-control-btn" id="pauseFocusTimer">Pause</button>
-          <button class="focus-control-btn" id="resetFocusTimer">Reset</button>
-          <button class="focus-control-btn" id="exitFocusMode">Exit</button>
+          <button class="focus-control-btn" id="startFocusTimer" type="button">Start</button>
+          <button class="focus-control-btn" id="pauseFocusTimer" type="button">Pause</button>
+          <button class="focus-control-btn" id="resetFocusTimer" type="button">Reset</button>
+          <button class="focus-control-btn" id="exitFocusMode" type="button">Exit</button>
         </div>
 
         <div class="mini-label">Background sound</div>
         <div class="sound-grid">
-          <button class="sound-btn" data-sound="none">Off</button>
-          <button class="sound-btn" data-sound="rain">Rain</button>
-          <button class="sound-btn" data-sound="forest">Forest</button>
-          <button class="sound-btn" data-sound="waves">Waves</button>
-          <button class="sound-btn" data-sound="lofi">Lo-fi</button>
+          <button class="sound-btn" type="button" data-sound="none">Off</button>
+          <button class="sound-btn" type="button" data-sound="rain">Rain</button>
+          <button class="sound-btn" type="button" data-sound="forest">Forest</button>
+          <button class="sound-btn" type="button" data-sound="waves">Waves</button>
+          <button class="sound-btn" type="button" data-sound="lofi">YouTube lo-fi</button>
         </div>
 
         <div class="range-row">
           <input id="soundVolume" type="range" min="0" max="100" value="40" />
           <span class="tiny" id="volumeText">40%</span>
         </div>
+
+        <div class="youtube-player" id="youtubePlayer"></div>
       </div>
     </section>
-
   </main>
 
   <script>
-    const $ = (id) => document.getElementById(id);
+    document.addEventListener("DOMContentLoaded", () => {
+      const $ = (id) => document.getElementById(id);
 
-    const defaults = {
-      name: "",
-      focus: "",
-      weather: "Singapore, 30°C",
-      theme: "ocean",
-      clock24: true,
-      showShortcuts: true,
-      showQuote: true,
-      balance: false,
-      focusMinutes: 25,
-      focusSound: "none",
-      soundVolume: 40,
-      wallpaperUrl: "",
-      notes: "",
-      searchEngine: "https://www.google.com/search?q=",
-      tasks: [
-        { text: "Plan your day", done: false },
-        { text: "Clear one small task", done: false }
-      ],
-      links: [
-        { name: "Gmail", url: "https://mail.google.com" },
-        { name: "Calendar", url: "https://calendar.google.com" },
-        { name: "YouTube", url: "https://youtube.com" },
-        { name: "ChatGPT", url: "https://chatgpt.com" }
-      ]
-    };
+      const defaults = {
+        name: "",
+        focus: "",
+        weather: "Singapore, 30°C",
+        theme: "ocean",
+        clock24: true,
+        showShortcuts: true,
+        showQuote: true,
+        focusMinutes: 25,
+        breakMinutes: 5,
+        focusModeType: "focus",
+        focusSound: "none",
+        youtubeUrl: "https://www.youtube.com/live/jfKfPfyJRdk",
+        soundVolume: 40,
+        wallpaperUrl: "",
+        notes: "",
+        searchEngine: "https://www.google.com/search?q=",
+        tasks: [
+          { text: "Plan your day", done: false },
+          { text: "Clear one small task", done: false }
+        ],
+        links: [
+          { name: "Gmail", url: "https://mail.google.com" },
+          { name: "Calendar", url: "https://calendar.google.com" },
+          { name: "YouTube", url: "https://youtube.com" },
+          { name: "ChatGPT", url: "https://chatgpt.com" }
+        ]
+      };
 
-    const quotes = [
-      ["Focus on the step in front of you.", "Unknown"],
-      ["Simplicity is the ultimate sophistication.", "Leonardo da Vinci"],
-      ["The secret of getting ahead is getting started.", "Mark Twain"],
-      ["What you do today can improve all your tomorrows.", "Ralph Marston"],
-      ["Never overlook the power of simplicity.", "Robin Sharma"]
-    ];
+      const quotes = [
+        ["Focus on the step in front of you.", "Unknown"],
+        ["Simplicity is the ultimate sophistication.", "Leonardo da Vinci"],
+        ["The secret of getting ahead is getting started.", "Mark Twain"],
+        ["What you do today can improve all your tomorrows.", "Ralph Marston"],
+        ["Never overlook the power of simplicity.", "Robin Sharma"]
+      ];
 
-    const themes = {
-      ocean: ["#182848", "#4b6cb7"],
-      dusk: ["#42275a", "#734b6d"],
-      forest: ["#134e5e", "#71b280"],
-      mono: ["#232526", "#414345"]
-    };
+      const themes = {
+        ocean: ["#182848", "#4b6cb7"],
+        dusk: ["#42275a", "#734b6d"],
+        forest: ["#134e5e", "#71b280"],
+        mono: ["#232526", "#414345"]
+      };
 
-    const photoUrls = [
-      "url('https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1800&q=80')",
-      "url('https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1800&q=80')",
-      "url('https://images.unsplash.com/photo-1493246507139-91e8fad9978e?auto=format&fit=crop&w=1800&q=80')",
-      "url('https://images.unsplash.com/photo-1470770841072-f978cf4d019e?auto=format&fit=crop&w=1800&q=80')"
-    ];
+      const photoUrls = [
+        "url('https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1800&q=80')",
+        "url('https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1800&q=80')",
+        "url('https://images.unsplash.com/photo-1493246507139-91e8fad9978e?auto=format&fit=crop&w=1800&q=80')",
+        "url('https://images.unsplash.com/photo-1470770841072-f978cf4d019e?auto=format&fit=crop&w=1800&q=80')"
+      ];
 
-    const todayKey = new Date().toISOString().slice(0, 10);
-    const storeKey = "focusHomeData";
-    let data = load();
+      const todayKey = new Date().toISOString().slice(0, 10);
+      const storeKey = "focusHomeDataV4";
+      let data = load();
+      let focusRemaining = getCurrentSessionSeconds();
+      let focusInterval = null;
+      let audioCtx = null;
+      let soundNodes = [];
 
-    function load() {
-      const saved = localStorage.getItem(storeKey);
-      if (!saved) return structuredClone(defaults);
-      try {
-        return { ...structuredClone(defaults), ...JSON.parse(saved) };
-      } catch {
-        return structuredClone(defaults);
-      }
-    }
-
-    function save() {
-      localStorage.setItem(storeKey, JSON.stringify(data));
-    }
-
-    function updateClock() {
-      const now = new Date();
-      const h = now.getHours();
-      const m = String(now.getMinutes()).padStart(2, "0");
-      let hour = h;
-
-      if (!data.clock24) {
-        hour = h % 12 || 12;
-      } else {
-        hour = String(h).padStart(2, "0");
+      function clone(obj) {
+        return JSON.parse(JSON.stringify(obj));
       }
 
-      $("clock").textContent = `${hour}:${m}`;
-
-      const part = h < 12 ? "morning" : h < 18 ? "afternoon" : "evening";
-      $("greeting").textContent = data.name ? `Good ${part}, ${data.name}` : `Good ${part}`;
-      $("dateText").textContent = now.toLocaleDateString(undefined, {
-        weekday: "long",
-        month: "long",
-        day: "numeric"
-      });
-    }
-
-    function setTheme() {
-      document.body.classList.remove("image-bg");
-
-      if (data.theme === "photo") {
-        const index = Math.abs(hash(todayKey)) % photoUrls.length;
-        document.body.style.setProperty("--photo-url", photoUrls[index]);
-        document.body.style.setProperty("--focus-bg", photoUrls[index] + " center/cover fixed");
-        document.body.classList.add("image-bg");
-        return;
-      }
-
-      if (data.theme === "custom" && data.wallpaperUrl) {
-        const custom = `url('${data.wallpaperUrl}')`;
-        document.body.style.setProperty("--photo-url", custom);
-        document.body.style.setProperty("--focus-bg", custom + " center/cover fixed");
-        document.body.classList.add("image-bg");
-        return;
-      }
-
-      const [a, b] = themes[data.theme] || themes.ocean;
-      document.documentElement.style.setProperty("--bg1", a);
-      document.documentElement.style.setProperty("--bg2", b);
-      document.body.style.setProperty("--focus-bg", `linear-gradient(135deg, ${a}, ${b})`);
-    }
-
-    function hash(str) {
-      let h = 0;
-      for (let i = 0; i < str.length; i++) h = Math.imul(31, h) + str.charCodeAt(i) | 0;
-      return h;
-    }
-
-    function renderQuote() {
-      const [text, author] = quotes[Math.abs(hash(todayKey)) % quotes.length];
-      $("quote").textContent = data.showQuote ? `“${text}” — ${author}` : "";
-      $("quote").classList.toggle("hidden", !data.showQuote);
-    }
-
-    function renderShortcuts() {
-      $("shortcutGrid").classList.toggle("hidden", !data.showShortcuts);
-      $("shortcutGrid").innerHTML = data.links.slice(0, 8).map(link => `
-        <a class="shortcut" href="${safeUrl(link.url)}">
-          <span>${escapeHtml(link.name)}</span>
-        </a>
-      `).join("");
-    }
-
-    function renderLinksPanel() {
-      $("linkList").innerHTML = data.links.map((link, index) => `
-        <div class="link-item">
-          <span>↗</span>
-          <a href="${safeUrl(link.url)}" style="color:white;text-decoration:none">${escapeHtml(link.name)}</a>
-          <button class="icon-btn" onclick="removeLink(${index})">×</button>
-        </div>
-      `).join("");
-    }
-
-    function renderTasks() {
-      $("taskList").innerHTML = data.tasks.map((task, index) => `
-        <div class="task-item ${task.done ? "done" : ""}">
-          <input type="checkbox" ${task.done ? "checked" : ""} onchange="toggleTask(${index})">
-          <span onclick="toggleTask(${index})">${escapeHtml(task.text)}</span>
-          <button class="icon-btn" onclick="removeTask(${index})">×</button>
-        </div>
-      `).join("");
-    }
-
-    function renderSettings() {
-      $("nameSetting").value = data.name;
-      $("weatherSetting").value = data.weather;
-      $("themeSetting").value = data.theme === "custom" ? "photo" : data.theme;
-      $("focusMinutesSetting").value = data.focusMinutes;
-      $("wallpaperUrlSetting").value = data.wallpaperUrl;
-      $("soundVolume").value = data.soundVolume;
-      $("volumeText").textContent = `${data.soundVolume}%`;
-      $("clockMode").checked = data.clock24;
-      $("showShortcuts").checked = data.showShortcuts;
-      $("showQuote").checked = data.showQuote;
-      $("focusInput").value = data.focus;
-      $("notes").value = data.notes;
-      $("weather").textContent = `☁️ ${data.weather || "Set weather"}`;
-      $("searchEngine").value = data.searchEngine;
-      $("focusSection").style.opacity = data.balance ? "0.68" : "1";
-      updateSoundButtons();
-      updateWallpaperButtons();
-    }
-
-    function renderAll() {
-      setTheme();
-      updateClock();
-      renderQuote();
-      renderShortcuts();
-      renderLinksPanel();
-      renderTasks();
-      renderSettings();
-    }
-
-    function toggleTask(index) {
-      data.tasks[index].done = !data.tasks[index].done;
-      save();
-      renderTasks();
-    }
-
-    function removeTask(index) {
-      data.tasks.splice(index, 1);
-      save();
-      renderTasks();
-    }
-
-    function removeLink(index) {
-      data.links.splice(index, 1);
-      save();
-      renderLinksPanel();
-      renderShortcuts();
-    }
-
-    function safeUrl(url) {
-      if (!url) return "#";
-      if (url.startsWith("http://") || url.startsWith("https://")) return url;
-      return "https://" + url;
-    }
-
-    function escapeHtml(str) {
-      return String(str).replace(/[&<>"']/g, m => ({
-        "&": "&amp;",
-        "<": "&lt;",
-        ">": "&gt;",
-        '"': "&quot;",
-        "'": "&#039;"
-      }[m]));
-    }
-
-
-    let focusRemaining = data.focusMinutes * 60;
-    let focusInterval = null;
-    let audioCtx = null;
-    let soundNodes = [];
-
-    function updateFocusTimer() {
-      const mins = String(Math.floor(focusRemaining / 60)).padStart(2, "0");
-      const secs = String(focusRemaining % 60).padStart(2, "0");
-      $("focusTimer").textContent = `${mins}:${secs}`;
-      $("focusTaskText").textContent = data.focus || "Choose one clear priority";
-    }
-
-    function enterFocusMode() {
-      $("focusOverlay").classList.add("active");
-      focusRemaining = data.focusMinutes * 60;
-      updateFocusTimer();
-      playSound(data.focusSound);
-    }
-
-    function exitFocusMode() {
-      $("focusOverlay").classList.remove("active");
-      pauseFocusTimer();
-      stopSound();
-    }
-
-    function startFocusTimer() {
-      if (focusInterval) return;
-      $("focusStatus").textContent = "Focusing";
-      focusInterval = setInterval(() => {
-        focusRemaining -= 1;
-        if (focusRemaining <= 0) {
-          focusRemaining = 0;
-          pauseFocusTimer();
-          $("focusStatus").textContent = "Session complete";
+      function load() {
+        const saved = localStorage.getItem(storeKey);
+        if (!saved) return clone(defaults);
+        try {
+          return { ...clone(defaults), ...JSON.parse(saved) };
+        } catch {
+          return clone(defaults);
         }
-        updateFocusTimer();
-      }, 1000);
-      playSound(data.focusSound);
-    }
-
-    function pauseFocusTimer() {
-      clearInterval(focusInterval);
-      focusInterval = null;
-    }
-
-    function resetFocusTimer() {
-      pauseFocusTimer();
-      focusRemaining = data.focusMinutes * 60;
-      $("focusStatus").textContent = "Focusing";
-      updateFocusTimer();
-    }
-
-    function stopSound() {
-      soundNodes.forEach(node => {
-        try { node.stop && node.stop(); } catch {}
-        try { node.disconnect && node.disconnect(); } catch {}
-      });
-      soundNodes = [];
-    }
-
-    function getAudioContext() {
-      if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-      if (audioCtx.state === "suspended") audioCtx.resume();
-      return audioCtx;
-    }
-
-    function playSound(type) {
-      stopSound();
-      if (type === "none") return;
-
-      const ctx = getAudioContext();
-      const gain = ctx.createGain();
-      gain.gain.value = data.soundVolume / 100 * 0.18;
-      gain.connect(ctx.destination);
-      soundNodes.push(gain);
-
-      if (type === "lofi") {
-        const notes = [261.63, 329.63, 392.0, 493.88];
-        let i = 0;
-        const interval = setInterval(() => {
-          const osc = ctx.createOscillator();
-          const noteGain = ctx.createGain();
-          osc.type = "sine";
-          osc.frequency.value = notes[i % notes.length] / 2;
-          noteGain.gain.setValueAtTime(0.0001, ctx.currentTime);
-          noteGain.gain.exponentialRampToValueAtTime(gain.gain.value, ctx.currentTime + 0.08);
-          noteGain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 1.2);
-          osc.connect(noteGain);
-          noteGain.connect(ctx.destination);
-          osc.start();
-          osc.stop(ctx.currentTime + 1.3);
-          i++;
-        }, 1400);
-        soundNodes.push({ stop: () => clearInterval(interval), disconnect: () => {} });
-        return;
       }
 
-      const bufferSize = 2 * ctx.sampleRate;
-      const noiseBuffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
-      const output = noiseBuffer.getChannelData(0);
-      for (let i = 0; i < bufferSize; i++) output[i] = Math.random() * 2 - 1;
+      function save() {
+        localStorage.setItem(storeKey, JSON.stringify(data));
+      }
 
-      const whiteNoise = ctx.createBufferSource();
-      whiteNoise.buffer = noiseBuffer;
-      whiteNoise.loop = true;
+      function hash(str) {
+        let h = 0;
+        for (let i = 0; i < str.length; i++) h = Math.imul(31, h) + str.charCodeAt(i) | 0;
+        return h;
+      }
 
-      const filter = ctx.createBiquadFilter();
-      filter.type = type === "rain" ? "highpass" : "lowpass";
-      filter.frequency.value = type === "rain" ? 900 : type === "forest" ? 700 : 420;
+      function safeUrl(url) {
+        if (!url) return "#";
+        if (url.startsWith("http://") || url.startsWith("https://") || url.startsWith("data:image/")) return url;
+        return "https://" + url;
+      }
 
-      const tremolo = ctx.createOscillator();
-      const tremoloGain = ctx.createGain();
-      tremolo.frequency.value = type === "waves" ? 0.12 : 0.5;
-      tremoloGain.gain.value = type === "waves" ? 0.08 : 0.03;
-      tremolo.connect(tremoloGain);
-      tremoloGain.connect(gain.gain);
+      function cssUrl(url) {
+        if (!url) return "";
+        if (url.startsWith("data:image/")) return `url("${url}")`;
+        return `url('${url.replace(/'/g, "%27")}')`;
+      }
 
-      whiteNoise.connect(filter);
-      filter.connect(gain);
-      whiteNoise.start();
-      tremolo.start();
+      function getYouTubeId(url) {
+        const text = String(url || "").trim();
+        const patterns = [
+          /youtube\.com\/live\/([a-zA-Z0-9_-]+)/,
+          /youtube\.com\/watch\?v=([a-zA-Z0-9_-]+)/,
+          /youtu\.be\/([a-zA-Z0-9_-]+)/,
+          /youtube\.com\/embed\/([a-zA-Z0-9_-]+)/
+        ];
+        for (const pattern of patterns) {
+          const match = text.match(pattern);
+          if (match) return match[1];
+        }
+        return "jfKfPfyJRdk";
+      }
 
-      soundNodes.push(whiteNoise, filter, tremolo, tremoloGain);
-    }
+      function renderYouTubePlayer(active) {
+        const box = $("youtubePlayer");
+        if (!box) return;
+        box.classList.toggle("active", active);
+        if (!active) {
+          box.innerHTML = "";
+          return;
+        }
+        const id = getYouTubeId(data.youtubeUrl);
+        const volumeHint = data.soundVolume === 0 ? 1 : 0;
+        box.innerHTML = `<iframe src="https://www.youtube.com/embed/${id}?autoplay=1&controls=1&modestbranding=1&playsinline=1&mute=${volumeHint}" allow="autoplay; encrypted-media" allowfullscreen></iframe>`;
+      }
 
-    function updateSoundButtons() {
-      document.querySelectorAll(".sound-btn").forEach(btn => {
-        btn.classList.toggle("active", btn.dataset.sound === data.focusSound);
-      });
-    }
+      function escapeHtml(str) {
+        return String(str).replace(/[&<>"']/g, m => ({
+          "&": "&amp;",
+          "<": "&lt;",
+          ">": "&gt;",
+          '"': "&quot;",
+          "'": "&#039;"
+        }[m]));
+      }
 
-    function updateWallpaperButtons() {
-      document.querySelectorAll(".wallpaper-btn").forEach(btn => {
-        btn.classList.toggle("active", btn.dataset.wallpaper === data.theme);
-      });
-    }
+      function updateClock() {
+        const now = new Date();
+        const h = now.getHours();
+        const m = String(now.getMinutes()).padStart(2, "0");
+        const hour = data.clock24 ? String(h).padStart(2, "0") : String(h % 12 || 12);
+        $("clock").textContent = `${hour}:${m}`;
 
-    document.querySelectorAll("[data-panel]").forEach(btn => {
-      btn.addEventListener("click", () => {
-        const panel = $(btn.dataset.panel);
-        document.querySelectorAll(".panel").forEach(p => {
-          if (p !== panel) p.classList.remove("active");
+        const part = h < 12 ? "morning" : h < 18 ? "afternoon" : "evening";
+        $("greeting").textContent = data.name ? `Good ${part}, ${data.name}` : `Good ${part}`;
+        $("dateText").textContent = now.toLocaleDateString(undefined, {
+          weekday: "long",
+          month: "long",
+          day: "numeric"
         });
-        panel.classList.toggle("active");
-      });
-    });
+      }
 
-    $("searchForm").addEventListener("submit", e => {
-      e.preventDefault();
-      const q = $("searchInput").value.trim();
-      if (!q) return;
-      window.location.href = data.searchEngine + encodeURIComponent(q);
-    });
+      function setTheme() {
+        document.body.classList.remove("image-bg");
 
-    $("searchEngine").addEventListener("change", e => {
-      data.searchEngine = e.target.value;
-      save();
-    });
+        if (data.theme === "photo") {
+          const image = photoUrls[Math.abs(hash(todayKey)) % photoUrls.length];
+          document.body.style.setProperty("--photo-url", image);
+          document.body.style.setProperty("--focus-bg", image);
+          document.body.classList.add("image-bg");
+          return;
+        }
 
-    $("focusInput").addEventListener("input", e => {
-      data.focus = e.target.value;
-      save();
-    });
+        if (data.theme === "custom" && data.wallpaperUrl) {
+          const image = cssUrl(data.wallpaperUrl);
+          document.body.style.setProperty("--photo-url", image);
+          document.body.style.setProperty("--focus-bg", image);
+          document.body.classList.add("image-bg");
+          return;
+        }
 
-    $("clearFocus").addEventListener("click", () => {
-      data.focus = "";
-      save();
-      renderSettings();
-    });
+        const [a, b] = themes[data.theme] || themes.ocean;
+        document.documentElement.style.setProperty("--bg1", a);
+        document.documentElement.style.setProperty("--bg2", b);
+        document.body.style.setProperty("--focus-bg", `linear-gradient(135deg, ${a}, ${b})`);
+      }
 
-    $("taskForm").addEventListener("submit", e => {
-      e.preventDefault();
-      const text = $("taskInput").value.trim();
-      if (!text) return;
-      data.tasks.unshift({ text, done: false });
-      $("taskInput").value = "";
-      save();
-      renderTasks();
-    });
+      function renderQuote() {
+        const [text, author] = quotes[Math.abs(hash(todayKey)) % quotes.length];
+        $("quote").textContent = data.showQuote ? `“${text}” - ${author}` : "";
+        $("quote").classList.toggle("hidden", !data.showQuote);
+      }
 
-    $("linkForm").addEventListener("submit", e => {
-      e.preventDefault();
-      const name = $("linkName").value.trim();
-      const url = $("linkUrl").value.trim();
-      if (!name || !url) return;
-      data.links.push({ name, url: safeUrl(url) });
-      $("linkName").value = "";
-      $("linkUrl").value = "";
-      save();
-      renderLinksPanel();
-      renderShortcuts();
-    });
+      function renderShortcuts() {
+        $("shortcutGrid").classList.toggle("hidden", !data.showShortcuts);
+        $("shortcutGrid").innerHTML = data.links.slice(0, 8).map(link => `
+          <a class="shortcut" href="${safeUrl(link.url)}">
+            <span>${escapeHtml(link.name)}</span>
+          </a>
+        `).join("");
+      }
 
-    $("notes").addEventListener("input", e => {
-      data.notes = e.target.value;
-      save();
-    });
+      function renderLinksPanel() {
+        $("linkList").innerHTML = data.links.map((link, index) => `
+          <div class="link-item">
+            <span>↗</span>
+            <a href="${safeUrl(link.url)}" style="color:white;text-decoration:none">${escapeHtml(link.name)}</a>
+            <button class="icon-btn" type="button" data-remove-link="${index}">×</button>
+          </div>
+        `).join("");
 
-    $("nameSetting").addEventListener("input", e => {
-      data.name = e.target.value.trim();
-      save();
-      updateClock();
-    });
+        document.querySelectorAll("[data-remove-link]").forEach(btn => {
+          btn.addEventListener("click", () => {
+            data.links.splice(Number(btn.dataset.removeLink), 1);
+            save();
+            renderLinksPanel();
+            renderShortcuts();
+          });
+        });
+      }
 
-    $("weatherSetting").addEventListener("input", e => {
-      data.weather = e.target.value.trim();
-      save();
-      renderSettings();
-    });
+      function renderTasks() {
+        $("taskList").innerHTML = data.tasks.map((task, index) => `
+          <div class="task-item ${task.done ? "done" : ""}">
+            <input type="checkbox" ${task.done ? "checked" : ""} data-toggle-task="${index}">
+            <span data-toggle-task="${index}">${escapeHtml(task.text)}</span>
+            <button class="icon-btn" type="button" data-remove-task="${index}">×</button>
+          </div>
+        `).join("");
 
-    $("themeSetting").addEventListener("change", e => {
-      data.theme = e.target.value;
-      save();
-      setTheme();
-    });
+        document.querySelectorAll("[data-toggle-task]").forEach(el => {
+          el.addEventListener("click", () => {
+            const index = Number(el.dataset.toggleTask);
+            data.tasks[index].done = !data.tasks[index].done;
+            save();
+            renderTasks();
+          });
+        });
 
-    $("clockMode").addEventListener("change", e => {
-      data.clock24 = e.target.checked;
-      save();
-      updateClock();
-    });
+        document.querySelectorAll("[data-remove-task]").forEach(btn => {
+          btn.addEventListener("click", () => {
+            data.tasks.splice(Number(btn.dataset.removeTask), 1);
+            save();
+            renderTasks();
+          });
+        });
+      }
 
-    $("showShortcuts").addEventListener("change", e => {
-      data.showShortcuts = e.target.checked;
-      save();
-      renderShortcuts();
-    });
+      function updateSoundButtons() {
+        document.querySelectorAll(".sound-btn").forEach(btn => {
+          btn.classList.toggle("active", btn.dataset.sound === data.focusSound);
+        });
+      }
 
-    $("showQuote").addEventListener("change", e => {
-      data.showQuote = e.target.checked;
-      save();
-      renderQuote();
-    });
+      function updateWallpaperButtons() {
+        document.querySelectorAll(".wallpaper-btn").forEach(btn => {
+          btn.classList.toggle("active", btn.dataset.wallpaper === data.theme);
+        });
+      }
 
-    $("balanceBtn").addEventListener("click", () => {
-      data.balance = !data.balance;
-      save();
-      renderSettings();
-    });
-
-
-    $("focusModeBtn").addEventListener("click", enterFocusMode);
-    $("exitFocusMode").addEventListener("click", exitFocusMode);
-    $("startFocusTimer").addEventListener("click", startFocusTimer);
-    $("pauseFocusTimer").addEventListener("click", pauseFocusTimer);
-    $("resetFocusTimer").addEventListener("click", resetFocusTimer);
-
-    document.querySelectorAll(".sound-btn").forEach(btn => {
-      btn.addEventListener("click", () => {
-        data.focusSound = btn.dataset.sound;
-        save();
+      function renderSettings() {
+        $("nameSetting").value = data.name;
+        $("weatherSetting").value = data.weather;
+        $("themeSetting").value = data.theme;
+        $("focusMinutesSetting").value = data.focusMinutes;
+        $("breakMinutesSetting").value = data.breakMinutes;
+        $("youtubeUrlSetting").value = data.youtubeUrl;
+        $("wallpaperUrlSetting").value = data.wallpaperUrl.startsWith("data:image/") ? "Uploaded image saved" : data.wallpaperUrl;
+        $("soundVolume").value = data.soundVolume;
+        $("volumeText").textContent = `${data.soundVolume}%`;
+        $("clockMode").checked = data.clock24;
+        $("showShortcuts").checked = data.showShortcuts;
+        $("showQuote").checked = data.showQuote;
+        $("focusInput").value = data.focus;
+        $("notes").value = data.notes;
+        $("weather").textContent = `☁️ ${data.weather || "Set weather"}`;
+        $("searchEngine").value = data.searchEngine;
         updateSoundButtons();
-        playSound(data.focusSound);
+        updateWallpaperButtons();
+        updateFocusTimer();
+      }
+
+      function renderAll() {
+        setTheme();
+        updateClock();
+        renderQuote();
+        renderShortcuts();
+        renderLinksPanel();
+        renderTasks();
+        renderSettings();
+      }
+
+      function getCurrentSessionSeconds() {
+        return (data.focusModeType === "break" ? data.breakMinutes : data.focusMinutes) * 60;
+      }
+
+      function updateFocusTabs() {
+        document.querySelectorAll("[data-focus-mode]").forEach(btn => {
+          btn.classList.toggle("active", btn.dataset.focusMode === data.focusModeType);
+        });
+      }
+
+      function updateFocusTimer() {
+        const mins = String(Math.floor(focusRemaining / 60)).padStart(2, "0");
+        const secs = String(focusRemaining % 60).padStart(2, "0");
+        $("focusTimer").textContent = `${mins}:${secs}`;
+        $("focusTaskText").textContent = data.focusModeType === "break"
+          ? "Take a short break"
+          : (data.focus || "Choose one clear priority");
+
+        const total = Math.max(1, getCurrentSessionSeconds());
+        const progress = 360 - Math.round((focusRemaining / total) * 360);
+        $("focusRing").style.setProperty("--progress", `${progress}deg`);
+        updateFocusTabs();
+      }
+
+      function enterFocusMode() {
+        $("focusOverlay").classList.add("active");
+        focusRemaining = getCurrentSessionSeconds();
+        updateFocusTimer();
+        if (data.focusSound !== "none") playSound(data.focusSound);
+      }
+
+      function exitFocusMode() {
+        $("focusOverlay").classList.remove("active");
+        pauseFocusTimer();
+        stopSound();
+      }
+
+      function startFocusTimer() {
+        if (focusInterval) return;
+        $("focusStatus").textContent = "Focusing";
+        focusInterval = setInterval(() => {
+          focusRemaining -= 1;
+          if (focusRemaining <= 0) {
+            focusRemaining = 0;
+            pauseFocusTimer();
+            $("focusStatus").textContent = "Session complete";
+            if (data.focusModeType === "focus") {
+              data.focusModeType = "break";
+            } else {
+              data.focusModeType = "focus";
+            }
+            save();
+            setTimeout(resetFocusTimer, 900);
+          }
+          updateFocusTimer();
+        }, 1000);
+        if (data.focusSound !== "none") playSound(data.focusSound);
+      }
+
+      function pauseFocusTimer() {
+        clearInterval(focusInterval);
+        focusInterval = null;
+      }
+
+      function resetFocusTimer() {
+        pauseFocusTimer();
+        focusRemaining = getCurrentSessionSeconds();
+        $("focusStatus").textContent = "Focusing";
+        updateFocusTimer();
+      }
+
+      function stopSound() {
+        renderYouTubePlayer(false);
+        soundNodes.forEach(node => {
+          try { node.stop && node.stop(); } catch {}
+          try { node.disconnect && node.disconnect(); } catch {}
+        });
+        soundNodes = [];
+      }
+
+      function getAudioContext() {
+        if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        if (audioCtx.state === "suspended") audioCtx.resume();
+        return audioCtx;
+      }
+
+      function playSound(type) {
+        stopSound();
+        renderYouTubePlayer(type === "lofi");
+        if (type === "none" || type === "lofi") return;
+
+        const ctx = getAudioContext();
+        const gain = ctx.createGain();
+        gain.gain.value = data.soundVolume / 100 * 0.18;
+        gain.connect(ctx.destination);
+        soundNodes.push(gain);
+
+        if (type === "lofi") {
+          const notes = [261.63, 329.63, 392.0, 493.88];
+          let i = 0;
+          const interval = setInterval(() => {
+            const osc = ctx.createOscillator();
+            const noteGain = ctx.createGain();
+            osc.type = "sine";
+            osc.frequency.value = notes[i % notes.length] / 2;
+            noteGain.gain.setValueAtTime(0.0001, ctx.currentTime);
+            noteGain.gain.exponentialRampToValueAtTime(gain.gain.value, ctx.currentTime + 0.08);
+            noteGain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 1.2);
+            osc.connect(noteGain);
+            noteGain.connect(ctx.destination);
+            osc.start();
+            osc.stop(ctx.currentTime + 1.3);
+            i++;
+          }, 1400);
+          soundNodes.push({ stop: () => clearInterval(interval), disconnect: () => {} });
+          return;
+        }
+
+        const bufferSize = 2 * ctx.sampleRate;
+        const noiseBuffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+        const output = noiseBuffer.getChannelData(0);
+        for (let i = 0; i < bufferSize; i++) output[i] = Math.random() * 2 - 1;
+
+        const noise = ctx.createBufferSource();
+        noise.buffer = noiseBuffer;
+        noise.loop = true;
+
+        const filter = ctx.createBiquadFilter();
+        filter.type = type === "rain" ? "highpass" : "lowpass";
+        filter.frequency.value = type === "rain" ? 900 : type === "forest" ? 700 : 420;
+
+        const tremolo = ctx.createOscillator();
+        const tremoloGain = ctx.createGain();
+        tremolo.frequency.value = type === "waves" ? 0.12 : 0.5;
+        tremoloGain.gain.value = type === "waves" ? 0.08 : 0.03;
+        tremolo.connect(tremoloGain);
+        tremoloGain.connect(gain.gain);
+
+        noise.connect(filter);
+        filter.connect(gain);
+        noise.start();
+        tremolo.start();
+
+        soundNodes.push(noise, filter, tremolo, tremoloGain);
+      }
+
+      document.querySelectorAll("[data-panel]").forEach(btn => {
+        btn.addEventListener("click", () => {
+          const panel = $(btn.dataset.panel);
+          document.querySelectorAll(".panel").forEach(p => {
+            if (p !== panel) p.classList.remove("active");
+          });
+          panel.classList.toggle("active");
+        });
       });
-    });
 
-    $("soundVolume").addEventListener("input", e => {
-      data.soundVolume = Number(e.target.value);
-      $("volumeText").textContent = `${data.soundVolume}%`;
-      save();
-      if (data.focusSound !== "none") playSound(data.focusSound);
-    });
+      $("searchForm").addEventListener("submit", e => {
+        e.preventDefault();
+        const q = $("searchInput").value.trim();
+        if (!q) return;
+        window.location.href = data.searchEngine + encodeURIComponent(q);
+      });
 
-    $("focusMinutesSetting").addEventListener("input", e => {
-      data.focusMinutes = Math.max(5, Math.min(120, Number(e.target.value) || 25));
-      save();
-      resetFocusTimer();
-    });
+      $("searchEngine").addEventListener("change", e => {
+        data.searchEngine = e.target.value;
+        save();
+      });
 
-    $("wallpaperUrlSetting").addEventListener("change", e => {
-      data.wallpaperUrl = e.target.value.trim();
-      if (data.wallpaperUrl) data.theme = "custom";
-      save();
-      setTheme();
-      renderSettings();
-    });
+      $("focusInput").addEventListener("input", e => {
+        data.focus = e.target.value;
+        save();
+        updateFocusTimer();
+      });
 
-    $("wallpaperUpload").addEventListener("change", e => {
-      const file = e.target.files[0];
-      if (!file) return;
-      const reader = new FileReader();
-      reader.onload = () => {
-        data.wallpaperUrl = reader.result;
+      $("clearFocus").addEventListener("click", () => {
+        data.focus = "";
+        save();
+        renderSettings();
+      });
+
+      $("taskForm").addEventListener("submit", e => {
+        e.preventDefault();
+        const text = $("taskInput").value.trim();
+        if (!text) return;
+        data.tasks.unshift({ text, done: false });
+        $("taskInput").value = "";
+        save();
+        renderTasks();
+      });
+
+      $("linkForm").addEventListener("submit", e => {
+        e.preventDefault();
+        const name = $("linkName").value.trim();
+        const url = $("linkUrl").value.trim();
+        if (!name || !url) return;
+        data.links.push({ name, url: safeUrl(url) });
+        $("linkName").value = "";
+        $("linkUrl").value = "";
+        save();
+        renderLinksPanel();
+        renderShortcuts();
+      });
+
+      $("notes").addEventListener("input", e => {
+        data.notes = e.target.value;
+        save();
+      });
+
+      $("nameSetting").addEventListener("input", e => {
+        data.name = e.target.value.trim();
+        save();
+        updateClock();
+      });
+
+      $("weatherSetting").addEventListener("input", e => {
+        data.weather = e.target.value.trim();
+        save();
+        renderSettings();
+      });
+
+      $("themeSetting").addEventListener("change", e => {
+        data.theme = e.target.value;
+        save();
+        setTheme();
+        updateWallpaperButtons();
+      });
+
+      $("clockMode").addEventListener("change", e => {
+        data.clock24 = e.target.checked;
+        save();
+        updateClock();
+      });
+
+      $("showShortcuts").addEventListener("change", e => {
+        data.showShortcuts = e.target.checked;
+        save();
+        renderShortcuts();
+      });
+
+      $("showQuote").addEventListener("change", e => {
+        data.showQuote = e.target.checked;
+        save();
+        renderQuote();
+      });
+
+      $("focusModeBtn").addEventListener("click", enterFocusMode);
+      $("exitFocusMode").addEventListener("click", exitFocusMode);
+      $("startFocusTimer").addEventListener("click", startFocusTimer);
+      $("pauseFocusTimer").addEventListener("click", pauseFocusTimer);
+      $("resetFocusTimer").addEventListener("click", resetFocusTimer);
+
+      document.querySelectorAll(".sound-btn").forEach(btn => {
+        btn.addEventListener("click", () => {
+          data.focusSound = btn.dataset.sound;
+          save();
+          updateSoundButtons();
+          playSound(data.focusSound);
+        });
+      });
+
+      $("soundVolume").addEventListener("input", e => {
+        data.soundVolume = Number(e.target.value);
+        $("volumeText").textContent = `${data.soundVolume}%`;
+        save();
+        if (data.focusSound !== "none") playSound(data.focusSound);
+      });
+
+      $("focusMinutesSetting").addEventListener("input", e => {
+        data.focusMinutes = Math.max(5, Math.min(120, Number(e.target.value) || 25));
+        save();
+        if (data.focusModeType === "focus") resetFocusTimer();
+      });
+
+      $("breakMinutesSetting").addEventListener("input", e => {
+        data.breakMinutes = Math.max(1, Math.min(60, Number(e.target.value) || 5));
+        save();
+        if (data.focusModeType === "break") resetFocusTimer();
+      });
+
+      $("youtubeUrlSetting").addEventListener("change", e => {
+        data.youtubeUrl = e.target.value.trim() || "https://www.youtube.com/live/jfKfPfyJRdk";
+        save();
+        if (data.focusSound === "lofi") playSound("lofi");
+      });
+
+      document.querySelectorAll("[data-focus-mode]").forEach(btn => {
+        btn.addEventListener("click", () => {
+          data.focusModeType = btn.dataset.focusMode;
+          save();
+          resetFocusTimer();
+        });
+      });
+
+      $("wallpaperUrlSetting").addEventListener("change", e => {
+        const value = e.target.value.trim();
+        if (!value || value === "Uploaded image saved") return;
+        data.wallpaperUrl = value;
         data.theme = "custom";
         save();
         setTheme();
         renderSettings();
-      };
-      reader.readAsDataURL(file);
-    });
-
-    document.querySelectorAll(".wallpaper-btn").forEach(btn => {
-      btn.addEventListener("click", () => {
-        data.theme = btn.dataset.wallpaper;
-        save();
-        setTheme();
-        renderSettings();
       });
-    });
 
-    $("resetBtn").addEventListener("click", () => {
-      localStorage.removeItem(storeKey);
-      data = structuredClone(defaults);
+      $("wallpaperUpload").addEventListener("change", e => {
+        const file = e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = () => {
+          data.wallpaperUrl = reader.result;
+          data.theme = "custom";
+          save();
+          setTheme();
+          renderSettings();
+        };
+        reader.readAsDataURL(file);
+      });
+
+      document.querySelectorAll(".wallpaper-btn").forEach(btn => {
+        btn.addEventListener("click", () => {
+          data.theme = btn.dataset.wallpaper;
+          save();
+          setTheme();
+          renderSettings();
+        });
+      });
+
+      $("resetBtn").addEventListener("click", () => {
+        localStorage.removeItem(storeKey);
+        data = clone(defaults);
+        focusRemaining = getCurrentSessionSeconds();
+        stopSound();
+        renderAll();
+      });
+
       renderAll();
+      setInterval(updateClock, 1000);
     });
-
-    window.toggleTask = toggleTask;
-    window.removeTask = removeTask;
-    window.removeLink = removeLink;
-
-    renderAll();
-    setInterval(updateClock, 1000);
   </script>
 </body>
 </html>
