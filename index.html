@@ -1,1241 +1,1150 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-<title>Juven Lim — Dashboard</title>
-<link rel="preconnect" href="https://fonts.googleapis.com"/>
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300&family=DM+Sans:wght@300;400;500&family=JetBrains+Mono:wght@300;400&family=Playfair+Display:wght@300;400&family=Inter:wght@100;200;300&family=Outfit:wght@200;300;400&display=swap" rel="stylesheet"/>
-<style>
-/* ================================================================
-   CSS VARIABLES
-   ================================================================ */
-:root {
-  --accent:       #2dd4bf;
-  --accent-rgb:   45,212,191;
-  --bg:           #0a0a0f;
-  --bg2:          #111118;
-  --surface:      rgba(15,15,22,0.72);
-  --surface-h:    rgba(15,15,22,0.82);
-  --border:       rgba(255,255,255,0.14);
-  --text:         #f0f0f5;
-  --text-muted:   rgba(240,240,245,0.75);
-  --text-subtle:  rgba(240,240,245,0.45);
-  --blur:         blur(22px);
-  --radius:       18px;
-  --ease:         cubic-bezier(0.4,0,0.2,1);
-  --t:            0.3s;
-  --fd: 'Cormorant Garamond',Georgia,serif;
-  --fb: 'DM Sans',system-ui,sans-serif;
-  --fm: 'JetBrains Mono',monospace;
-}
-[data-theme="light"]{
-  --bg:#f0efe8; --bg2:#e8e7df;
-  --surface:rgba(240,239,232,0.82); --surface-h:rgba(240,239,232,0.92);
-  --border:rgba(0,0,0,0.12);
-  --text:#1a1a22;
-  --text-muted:rgba(26,26,34,0.72); --text-subtle:rgba(26,26,34,0.45);
-}
-[data-accent="blue"]  {--accent:#60a5fa;--accent-rgb:96,165,250;}
-[data-accent="pink"]  {--accent:#f472b6;--accent-rgb:244,114,182;}
-[data-accent="orange"]{--accent:#fb923c;--accent-rgb:251,146,60;}
-[data-accent="purple"]{--accent:#c084fc;--accent-rgb:192,132,252;}
-[data-accent="teal"]  {--accent:#2dd4bf;--accent-rgb:45,212,191;}
-
-/* ================================================================
-   RESET
-   ================================================================ */
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
-html{font-size:16px;scroll-behavior:smooth;}
-body{font-family:var(--fb);background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;transition:background var(--t) var(--ease),color var(--t) var(--ease);}
-button{font-family:var(--fb);cursor:pointer;border:none;outline:none;}
-input,textarea{font-family:var(--fb);outline:none;border:none;}
-a{text-decoration:none;color:inherit;}
-ul{list-style:none;}
-
-/* ================================================================
-   BACKGROUND
-   ================================================================ */
-#bg-layer{position:fixed;inset:0;z-index:0;background-size:cover;background-position:center;transition:opacity 1.5s ease;}
-#bg-overlay{
-  position:fixed;inset:0;z-index:1;
-  background:linear-gradient(160deg,rgba(10,10,15,0.6) 0%,rgba(10,10,15,0.25) 50%,rgba(10,10,15,0.7) 100%);
-}
-[data-theme="light"] #bg-overlay{
-  background:linear-gradient(160deg,rgba(240,239,232,0.65) 0%,rgba(240,239,232,0.3) 50%,rgba(240,239,232,0.72) 100%);
-}
-
-/* ================================================================
-   CUSTOM BG INDICATOR
-   ================================================================ */
-#custom-bg-indicator{
-  position:fixed;bottom:64px;left:18px;z-index:110;
-  display:none;align-items:center;gap:6px;
-  background:var(--surface);backdrop-filter:var(--blur);
-  border:1px solid rgba(var(--accent-rgb),0.35);border-radius:20px;
-  padding:5px 12px 5px 9px;font-size:0.7rem;color:var(--accent);letter-spacing:0.05em;
-  animation:fadeUp 0.35s var(--ease);
-}
-#custom-bg-indicator.visible{display:flex;}
-#custom-bg-reset{background:none;border:none;color:var(--text-subtle);font-size:0.68rem;margin-left:4px;cursor:pointer;padding:0;transition:color var(--t);}
-#custom-bg-reset:hover{color:var(--accent);}
-
-/* ================================================================
-   BOTTOM-LEFT CLUSTER
-   ================================================================ */
-#bottom-left-bar{position:fixed;bottom:18px;left:18px;z-index:110;display:flex;gap:8px;align-items:center;}
-
-/* ================================================================
-   TOP BAR
-   ================================================================ */
-#top-bar{position:fixed;top:16px;right:16px;z-index:110;display:flex;gap:8px;align-items:center;}
-.icon-btn{
-  height:36px;min-width:36px;padding:0 10px;
-  border-radius:10px;background:var(--surface);backdrop-filter:var(--blur);
-  border:1px solid var(--border);color:var(--text-muted);font-size:15px;
-  display:flex;align-items:center;justify-content:center;gap:5px;
-  transition:all var(--t) var(--ease);white-space:nowrap;font-size:0.78rem;
-}
-.icon-btn:hover{color:var(--accent);border-color:rgba(var(--accent-rgb),0.4);}
-.icon-btn.edit-on{background:rgba(var(--accent-rgb),0.18);border-color:var(--accent);color:var(--accent);}
-
-/* ================================================================
-   MAIN LAYOUT — full-page centered stack
-   ================================================================ */
-#app{position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;min-height:100vh;}
-
-/* ================================================================
-   HERO (clock zone) — perfectly centered
-   ================================================================ */
-#hero{
-  width:100%;max-width:680px;
-  display:flex;flex-direction:column;align-items:center;
-  padding:80px 24px 40px;
-  text-align:center;
-}
-#greeting{
-  font-family:var(--fd);font-size:clamp(2rem,4.5vw,3.2rem);
-  font-weight:600;font-style:italic;
-  color:rgba(240,240,245,0.88);
-  text-shadow:0 1px 16px rgba(0,0,0,0.6);
-  letter-spacing:0.02em;margin-bottom:8px;
-  animation:fadeUp 0.7s var(--ease) 0.1s both;
-}
-[data-theme="light"] #greeting{color:rgba(26,26,34,0.82);text-shadow:0 1px 8px rgba(255,255,255,0.7);}
-#clock{
-  font-family:'Outfit',system-ui,sans-serif;font-size:clamp(5rem,16vw,10.5rem);
-  font-weight:300;letter-spacing:-0.02em;line-height:1;color:var(--text);
-  text-shadow:0 2px 40px rgba(0,0,0,0.5),0 0 100px rgba(var(--accent-rgb),0.18);user-select:none;
-  animation:fadeUp 0.7s var(--ease) 0.15s both;
-}
-#date-display{
-  font-size:clamp(1.25rem,2.8vw,1.7rem);font-weight:400;
-  color:rgba(240,240,245,0.82);
-  text-shadow:0 1px 12px rgba(0,0,0,0.65);
-  letter-spacing:0.1em;margin-top:10px;text-transform:uppercase;
-  animation:fadeUp 0.7s var(--ease) 0.2s both;
-}
-[data-theme="light"] #date-display{color:rgba(26,26,34,0.76);text-shadow:0 1px 6px rgba(255,255,255,0.7);}
-/* ===== SEARCH BAR ===== */
-#search-bar-wrap{
-  margin-top:32px;width:100%;max-width:580px;
-  animation:fadeUp 0.7s var(--ease) 0.28s both;
-}
-#search-bar{
-  display:flex;align-items:center;gap:12px;
-  background:rgba(255,255,255,0.92);
-  border:1px solid rgba(255,255,255,0.3);
-  border-radius:9999px;
-  padding:13px 20px;
-  box-shadow:0 4px 28px rgba(0,0,0,0.35);
-  transition:box-shadow var(--t),background var(--t);
-}
-#search-bar:focus-within{
-  box-shadow:0 6px 40px rgba(0,0,0,0.45);
-  background:rgba(255,255,255,0.97);
-}
-[data-theme="light"] #search-bar{
-  background:rgba(255,255,255,0.88);
-  border-color:rgba(0,0,0,0.12);
-}
-#search-icon{font-size:1.1rem;color:#5f6368;flex-shrink:0;}
-#search-input{
-  flex:1;border:none;outline:none;background:transparent;
-  font-family:var(--fb);font-size:1rem;font-weight:400;
-  color:#202124;letter-spacing:0.01em;
-}
-#search-input::placeholder{color:#9aa0a6;}
-#search-btn{
-  background:transparent;border:none;cursor:pointer;
-  color:#5f6368;font-size:1.05rem;padding:0 2px;flex-shrink:0;
-  transition:color var(--t);display:flex;align-items:center;
-}
-#search-btn:hover{color:#202124;}
-#search-engines{
-  display:flex;justify-content:center;gap:10px;margin-top:10px;
-}
-.eng-btn{
-  background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.18);
-  color:rgba(240,240,245,0.7);border-radius:20px;
-  padding:4px 14px;font-size:0.72rem;letter-spacing:0.05em;
-  transition:all var(--t);cursor:pointer;
-}
-.eng-btn:hover,.eng-btn.active{
-  background:rgba(255,255,255,0.22);color:#fff;
-  border-color:rgba(255,255,255,0.35);
-}
-.eng-btn.active{background:rgba(var(--accent-rgb),0.25);border-color:rgba(var(--accent-rgb),0.5);color:var(--accent);}
-[data-theme="light"] .eng-btn{background:rgba(0,0,0,0.06);border-color:rgba(0,0,0,0.12);color:rgba(26,26,34,0.6);}
-[data-theme="light"] .eng-btn:hover,[data-theme="light"] .eng-btn.active{background:rgba(0,0,0,0.1);color:#1a1a22;}
-
-/* quote */
-#quote-section{
-  margin-top:24px;max-width:500px;text-align:center;
-  animation:fadeUp 0.7s var(--ease) 0.36s both;
-}
-#quote-text{
-  font-family:var(--fd);font-size:clamp(0.9rem,1.8vw,1.1rem);
-  font-style:italic;font-weight:300;
-  color:rgba(240,240,245,0.82);
-  text-shadow:0 1px 12px rgba(0,0,0,0.55);
-  line-height:1.65;
-}
-[data-theme="light"] #quote-text{color:rgba(26,26,34,0.74);text-shadow:0 1px 6px rgba(255,255,255,0.65);}
-#quote-author{
-  font-size:0.72rem;letter-spacing:0.1em;text-transform:uppercase;
-  color:rgba(240,240,245,0.55);
-  text-shadow:0 1px 8px rgba(0,0,0,0.5);
-  margin-top:8px;
-}
-[data-theme="light"] #quote-author{color:rgba(26,26,34,0.5);text-shadow:none;}
-#quote-next{
-  background:none;border:1px solid var(--border);color:var(--text-subtle);
-  border-radius:20px;padding:4px 14px;font-size:0.7rem;letter-spacing:0.08em;margin-top:10px;
-  transition:all var(--t);
-}
-#quote-next:hover{border-color:var(--accent);color:var(--accent);}
-
-/* ================================================================
-   WIDGET GRID AREA — below hero, full-width, centered
-   ================================================================ */
-#widget-area{
-  width:100%;max-width:1100px;
-  padding:0 20px 60px;
-  animation:fadeUp 0.7s var(--ease) 0.42s both;
-}
-
-/* Edit mode banner */
-#edit-banner{
-  display:none;align-items:center;justify-content:center;gap:10px;
-  padding:8px 16px;margin-bottom:14px;
-  background:rgba(var(--accent-rgb),0.1);border:1px solid rgba(var(--accent-rgb),0.25);
-  border-radius:12px;font-size:0.78rem;color:var(--accent);letter-spacing:0.05em;
-}
-#edit-banner.visible{display:flex;}
-#edit-banner span{opacity:0.7;font-size:1rem;}
-
-/* The sortable grid */
-#widget-grid{
-  display:grid;
-  grid-template-columns:repeat(auto-fill,minmax(300px,1fr));
-  gap:14px;
-  align-items:start;
-}
-
-/* ================================================================
-   GLASS CARD
-   ================================================================ */
-.card{
-  background:var(--surface);
-  backdrop-filter:var(--blur);-webkit-backdrop-filter:var(--blur);
-  border:1px solid var(--border);border-radius:var(--radius);
-  padding:16px;
-  transition:background var(--t),border var(--t),box-shadow var(--t),transform var(--t);
-  position:relative;
-}
-.card:hover{background:var(--surface-h);}
-.card-title{
-  font-size:9px;font-weight:500;letter-spacing:0.14em;
-  text-transform:uppercase;color:var(--text-muted);margin-bottom:10px;
-}
-
-/* Drag handle — shown only in edit mode */
-.drag-handle{
-  display:none;align-items:center;justify-content:center;
-  width:100%;height:28px;margin-bottom:8px;margin-top:-4px;
-  cursor:grab;color:var(--text-subtle);font-size:18px;letter-spacing:2px;
-  border-radius:8px;transition:background var(--t),color var(--t);
-  user-select:none;-webkit-user-select:none;
-}
-.drag-handle:hover{background:rgba(var(--accent-rgb),0.08);color:var(--accent);}
-.drag-handle:active{cursor:grabbing;}
-
-/* Edit-mode card styles */
-body.edit-mode .drag-handle{display:flex;}
-body.edit-mode .card{
-  border-color:rgba(var(--accent-rgb),0.2);
-  box-shadow:0 0 0 1px rgba(var(--accent-rgb),0.08);
-}
-body.edit-mode .card:hover{
-  border-color:rgba(var(--accent-rgb),0.4);
-  box-shadow:0 4px 24px rgba(var(--accent-rgb),0.1);
-}
-
-/* Dragging state */
-.card.dragging{
-  opacity:0.5;
-  transform:scale(0.97);
-  box-shadow:0 20px 60px rgba(0,0,0,0.5),0 0 0 2px var(--accent);
-  z-index:1000;cursor:grabbing;
-}
-/* Drag-over drop target */
-.card.drag-over{
-  border-color:var(--accent);
-  background:rgba(var(--accent-rgb),0.07);
-  box-shadow:0 0 0 2px rgba(var(--accent-rgb),0.3);
-}
-
-/* ================================================================
-   WIDGET: LOFI
-   ================================================================ */
-.card-title-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
-#lofi-station-btns{display:flex;gap:5px;margin-bottom:12px;}
-.lofi-station-btn{
-  flex:1;background:rgba(255,255,255,0.05);border:1px solid var(--border);
-  color:var(--text-muted);border-radius:7px;padding:5px 3px;
-  font-size:0.7rem;transition:all var(--t);white-space:nowrap;
-}
-.lofi-station-btn:hover{background:rgba(var(--accent-rgb),0.1);color:var(--accent);border-color:rgba(var(--accent-rgb),0.3);}
-.lofi-station-btn.active{background:rgba(var(--accent-rgb),0.18);border-color:var(--accent);color:var(--accent);}
-#lofi-controls{display:flex;align-items:center;gap:8px;}
-#lofi-play-btn{
-  width:36px;height:36px;flex-shrink:0;border-radius:50%;
-  background:var(--accent);color:#000;font-size:13px;
-  display:flex;align-items:center;justify-content:center;
-  transition:all var(--t);box-shadow:0 0 16px rgba(var(--accent-rgb),0.35);
-}
-#lofi-play-btn:hover{transform:scale(1.08);box-shadow:0 0 26px rgba(var(--accent-rgb),0.55);}
-#lofi-mute-btn{
-  width:30px;height:30px;flex-shrink:0;border-radius:8px;
-  background:rgba(255,255,255,0.06);border:1px solid var(--border);
-  color:var(--text-muted);font-size:13px;
-  display:flex;align-items:center;justify-content:center;transition:all var(--t);
-}
-#lofi-mute-btn:hover{color:var(--accent);border-color:rgba(var(--accent-rgb),0.4);}
-#lofi-station-name{flex:1;font-size:0.74rem;color:var(--text-muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
-#lofi-eq{display:flex;align-items:flex-end;gap:2px;height:20px;flex-shrink:0;}
-.eq-bar{width:3px;background:var(--accent);border-radius:2px 2px 0 0;animation:eqBounce 0.8s ease-in-out infinite alternate;opacity:0.75;}
-.eq-bar:nth-child(1){animation-duration:.65s;animation-delay:.00s;}
-.eq-bar:nth-child(2){animation-duration:.50s;animation-delay:.10s;}
-.eq-bar:nth-child(3){animation-duration:.90s;animation-delay:.20s;}
-.eq-bar:nth-child(4){animation-duration:.55s;animation-delay:.05s;}
-.eq-bar:nth-child(5){animation-duration:.75s;animation-delay:.15s;}
-@keyframes eqBounce{from{height:3px;}to{height:18px;}}
-#lofi-eq.paused .eq-bar{animation-play-state:paused;height:4px;opacity:0.25;}
-#lofi-iframe-container{width:0;height:0;overflow:hidden;position:absolute;left:-9999px;}
-
-/* ================================================================
-   WIDGET: WEATHER
-   ================================================================ */
-#weather-main{display:flex;align-items:center;gap:12px;}
-#weather-icon{font-size:2.2rem;}
-#weather-temp{font-family:var(--fd);font-size:2rem;font-weight:300;}
-#weather-info{font-size:0.78rem;color:var(--text-muted);line-height:1.5;}
-#weather-condition{font-size:0.82rem;color:var(--text);font-weight:400;}
-
-/* ================================================================
-   WIDGET: WORLD CLOCKS
-   ================================================================ */
-#clocks-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
-.clock-item{text-align:center;padding:8px;border-radius:10px;background:rgba(255,255,255,0.03);}
-.clock-city{font-size:0.65rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--text-subtle);}
-.clock-time{font-family:var(--fm);font-size:1.05rem;font-weight:300;color:var(--text);letter-spacing:0.04em;margin-top:2px;}
-
-/* ================================================================
-   WIDGET: POMODORO
-   ================================================================ */
-#pomo-display{font-family:var(--fm);font-size:2.5rem;font-weight:300;letter-spacing:0.05em;color:var(--text);text-align:center;margin:6px 0;}
-#pomo-mode{text-align:center;font-size:0.7rem;letter-spacing:0.13em;text-transform:uppercase;color:var(--accent);margin-bottom:8px;}
-#pomo-buttons{display:flex;gap:6px;justify-content:center;}
-.pomo-btn{background:rgba(255,255,255,0.06);border:1px solid var(--border);color:var(--text-muted);border-radius:8px;padding:6px 16px;font-size:0.78rem;transition:all var(--t);}
-.pomo-btn:hover{background:rgba(var(--accent-rgb),0.15);border-color:rgba(var(--accent-rgb),0.4);color:var(--accent);}
-.pomo-btn.active{background:var(--accent);color:#000;border-color:var(--accent);}
-#pomo-progress{width:100%;height:3px;background:var(--border);border-radius:2px;margin-top:12px;overflow:hidden;}
-#pomo-progress-bar{height:100%;background:var(--accent);border-radius:2px;transition:width 1s linear;}
-
-/* ================================================================
-   WIDGET: TODO
-   ================================================================ */
-#todo-input-row{display:flex;gap:8px;}
-#todo-input{flex:1;background:rgba(255,255,255,0.05);border:1px solid var(--border);border-radius:8px;padding:7px 10px;color:var(--text);font-size:0.82rem;transition:border var(--t);}
-#todo-input:focus{border-color:rgba(var(--accent-rgb),0.4);}
-#todo-input::placeholder{color:var(--text-subtle);}
-#todo-add-btn{background:rgba(var(--accent-rgb),0.15);border:1px solid rgba(var(--accent-rgb),0.3);color:var(--accent);border-radius:8px;padding:7px 12px;font-size:0.8rem;transition:all var(--t);}
-#todo-add-btn:hover{background:rgba(var(--accent-rgb),0.25);}
-#todo-list{margin-top:10px;display:flex;flex-direction:column;gap:6px;max-height:200px;overflow-y:auto;}
-#todo-list::-webkit-scrollbar{width:3px;}
-#todo-list::-webkit-scrollbar-thumb{background:var(--border);}
-.todo-item{display:flex;align-items:center;gap:8px;padding:6px 8px;border-radius:8px;background:rgba(255,255,255,0.03);border:1px solid transparent;transition:all var(--t);animation:slideIn 0.2s ease;}
-.todo-item:hover{background:rgba(255,255,255,0.06);}
-.todo-check{width:16px;height:16px;flex-shrink:0;border:1.5px solid var(--border);border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all var(--t);}
-.todo-check:hover{border-color:var(--accent);}
-.todo-item.done .todo-check{background:var(--accent);border-color:var(--accent);}
-.todo-item.done .todo-check::after{content:'✓';color:#000;font-size:10px;font-weight:700;}
-.todo-text{flex:1;font-size:0.82rem;font-weight:300;}
-.todo-item.done .todo-text{text-decoration:line-through;color:var(--text-subtle);}
-.todo-del{color:var(--text-subtle);font-size:0.72rem;cursor:pointer;opacity:0;transition:opacity var(--t);}
-.todo-item:hover .todo-del{opacity:1;}
-#todo-clear{background:none;border:none;color:var(--text-subtle);font-size:0.7rem;margin-top:8px;cursor:pointer;letter-spacing:0.05em;transition:color var(--t);}
-#todo-clear:hover{color:var(--accent);}
-
-/* ================================================================
-   WIDGET: QUICK LINKS
-   ================================================================ */
-#links-grid{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px;}
-.link-chip{display:flex;align-items:center;gap:6px;background:rgba(255,255,255,0.05);border:1px solid var(--border);border-radius:20px;padding:4px 10px 4px 8px;font-size:0.76rem;transition:all var(--t);max-width:150px;}
-.link-chip a{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--text-muted);transition:color var(--t);}
-.link-chip:hover{border-color:rgba(var(--accent-rgb),0.4);}
-.link-chip:hover a{color:var(--accent);}
-.link-chip-del{color:var(--text-subtle);cursor:pointer;font-size:10px;flex-shrink:0;opacity:0;transition:opacity var(--t);}
-.link-chip:hover .link-chip-del{opacity:1;}
-#link-add-row{display:flex;gap:6px;}
-#link-label-input,#link-url-input{flex:1;background:rgba(255,255,255,0.05);border:1px solid var(--border);border-radius:7px;padding:6px 8px;color:var(--text);font-size:0.76rem;min-width:0;transition:border var(--t);}
-#link-label-input:focus,#link-url-input:focus{border-color:rgba(var(--accent-rgb),0.4);}
-#link-label-input::placeholder,#link-url-input::placeholder{color:var(--text-subtle);}
-#link-add-btn{background:rgba(var(--accent-rgb),0.15);border:1px solid rgba(var(--accent-rgb),0.3);color:var(--accent);border-radius:7px;padding:6px 10px;font-size:0.76rem;transition:all var(--t);white-space:nowrap;}
-#link-add-btn:hover{background:rgba(var(--accent-rgb),0.25);}
-
-/* ================================================================
-   WIDGET: NOTES
-   ================================================================ */
-#notes-textarea{width:100%;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:10px;padding:10px;color:var(--text);font-size:0.82rem;font-weight:300;resize:vertical;min-height:100px;line-height:1.6;transition:border var(--t);}
-#notes-textarea:focus{border-color:rgba(var(--accent-rgb),0.4);}
-#notes-textarea::placeholder{color:var(--text-subtle);}
-
-/* ================================================================
-   SETTINGS PANEL
-   ================================================================ */
-#settings-panel{position:fixed;inset:0;z-index:200;display:none;align-items:flex-start;justify-content:flex-end;}
-#settings-panel.open{display:flex;}
-#settings-backdrop{position:absolute;inset:0;background:rgba(0,0,0,0.5);backdrop-filter:blur(4px);}
-#settings-drawer{
-  position:relative;z-index:1;width:320px;height:100vh;
-  background:var(--bg2);border-left:1px solid var(--border);
-  overflow-y:auto;padding:24px 20px;
-  display:flex;flex-direction:column;gap:20px;
-  animation:slideFromRight 0.3s var(--ease);
-}
-@keyframes slideFromRight{from{transform:translateX(100%);}to{transform:translateX(0);}}
-.settings-section-title{font-size:9px;letter-spacing:0.16em;text-transform:uppercase;color:var(--text-muted);margin-bottom:10px;}
-.settings-field{display:flex;flex-direction:column;gap:5px;}
-.settings-field label{font-size:0.78rem;color:var(--text-muted);}
-.settings-field input[type="text"]{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:8px 10px;color:var(--text);font-size:0.83rem;width:100%;transition:border var(--t);}
-.settings-field input[type="text"]:focus{border-color:rgba(var(--accent-rgb),0.5);}
-.toggle-row{display:flex;align-items:center;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border);}
-.toggle-row:last-child{border-bottom:none;}
-.toggle-label{font-size:0.82rem;color:var(--text-muted);}
-.toggle{width:36px;height:20px;background:var(--border);border-radius:10px;cursor:pointer;position:relative;transition:background var(--t);flex-shrink:0;border:none;}
-.toggle.on{background:var(--accent);}
-.toggle::after{content:'';position:absolute;top:3px;left:3px;width:14px;height:14px;background:white;border-radius:50%;transition:transform var(--t);}
-.toggle.on::after{transform:translateX(16px);}
-.color-swatches{display:flex;gap:8px;flex-wrap:wrap;}
-.swatch{width:28px;height:28px;border-radius:50%;cursor:pointer;border:2px solid transparent;transition:border var(--t),transform var(--t);}
-.swatch:hover{transform:scale(1.12);}
-.swatch.active{border-color:var(--text);}
-#settings-close{background:var(--surface);border:1px solid var(--border);color:var(--text-muted);border-radius:8px;padding:8px;font-size:0.83rem;transition:all var(--t);}
-#settings-close:hover{color:var(--text);}
-.select-row{display:flex;gap:6px;}
-.sel-btn{flex:1;background:var(--surface);border:1px solid var(--border);color:var(--text-muted);border-radius:8px;padding:7px;font-size:0.76rem;transition:all var(--t);}
-.sel-btn.active{background:rgba(var(--accent-rgb),0.15);border-color:var(--accent);color:var(--accent);}
-#bg-settings-btns{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px;}
-.bg-action-btn{background:var(--surface);border:1px solid var(--border);color:var(--text-muted);border-radius:8px;padding:7px 12px;font-size:0.76rem;transition:all var(--t);cursor:pointer;}
-.bg-action-btn:hover{color:var(--accent);border-color:rgba(var(--accent-rgb),0.4);}
-.bg-action-btn.danger:hover{color:#f87171;border-color:rgba(248,113,113,0.4);}
-#bg-status{font-size:0.72rem;color:var(--text-subtle);margin-top:4px;}
-
-/* ================================================================
-   FOCUS MODE OVERLAY
-   ================================================================ */
-#focus-mode-overlay{position:fixed;inset:0;z-index:150;background:rgba(0,0,0,0.88);backdrop-filter:blur(14px);display:none;flex-direction:column;align-items:center;justify-content:center;gap:20px;}
-#focus-mode-overlay.active{display:flex;}
-#focus-mode-clock{font-family:var(--fd);font-size:clamp(4rem,13vw,9.5rem);font-weight:300;color:var(--text);}
-#focus-mode-input-row{display:flex;gap:10px;width:100%;max-width:500px;padding:0 24px;}
-#focus-mode-input{flex:1;background:rgba(255,255,255,0.07);border:1px solid var(--border);border-radius:12px;padding:13px 18px;color:var(--text);font-size:1rem;font-weight:300;}
-#focus-mode-input::placeholder{color:var(--text-subtle);}
-#focus-mode-exit{position:absolute;top:20px;right:20px;background:none;border:1px solid var(--border);color:var(--text-muted);border-radius:10px;padding:8px 18px;font-size:0.8rem;transition:all var(--t);}
-#focus-mode-exit:hover{color:var(--text);border-color:var(--text);}
-
-/* ================================================================
-   ANIMATIONS
-   ================================================================ */
-@keyframes fadeUp{from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:translateY(0);}}
-@keyframes slideIn{from{opacity:0;transform:translateY(-5px);}to{opacity:1;transform:translateY(0);}}
-
-/* ================================================================
-   RESPONSIVE
-   ================================================================ */
-@media(max-width:700px){
-  #widget-grid{grid-template-columns:1fr;}
-  #hero{padding-top:70px;}
-  #top-bar{top:10px;right:10px;}
-  #bottom-left-bar{bottom:10px;left:10px;}
-  #custom-bg-indicator{bottom:58px;left:10px;}
-}
-
-/* ================================================================
-   MISC
-   ================================================================ */
-.hidden{display:none!important;}
-</style>
-</head>
-<body data-theme="dark" data-accent="teal">
-
-<!-- Background -->
-<div id="bg-layer"></div>
-<div id="bg-overlay"></div>
-
-<!-- Hidden YouTube iframe (audio only) -->
-<div id="lofi-iframe-container">
-  <iframe id="lofi-iframe" width="1" height="1" frameborder="0"
-    allow="autoplay;encrypted-media" allowfullscreen src="about:blank"></iframe>
-</div>
-
-<!-- Hidden file picker for custom background -->
-<input type="file" id="bg-file-input" accept="image/*" style="display:none;"/>
-
-<!-- Custom BG active indicator -->
-<div id="custom-bg-indicator">
-  <span>🖼</span>&nbsp;Custom background
-  <button id="custom-bg-reset">Reset ✕</button>
-</div>
-
-<!-- Bottom-left: upload button -->
-<div id="bottom-left-bar">
-  <button class="icon-btn" id="bg-upload-btn" title="Upload background image">🖼</button>
-</div>
-
-<!-- Top-right bar -->
-<div id="top-bar">
-  <button class="icon-btn" id="edit-layout-btn" title="Edit widget layout">✦ Edit Layout</button>
-  <button class="icon-btn" id="focus-mode-btn" title="Focus Mode">⊙</button>
-  <button class="icon-btn" id="theme-toggle"   title="Toggle theme">◐</button>
-  <button class="icon-btn" id="settings-btn"   title="Settings">⚙</button>
-</div>
-
-<!-- ================================================================
-     MAIN APP
-     ================================================================ -->
-<div id="app">
-
-  <!-- HERO — centered clock zone -->
-  <div id="hero">
-    <div id="greeting">Good morning, Juven Lim</div>
-    <div id="clock">00:00</div>
-    <div id="date-display">Thursday, 19 March 2026</div>
-
-    <div id="search-bar-wrap">
-      <div id="search-bar">
-        <span id="search-icon">🔍</span>
-        <input id="search-input" type="text" placeholder="Search the web…" autocomplete="off" autocorrect="off" spellcheck="false"/>
-        <button id="search-btn" title="Search">→</button>
-      </div>
-      <div id="search-engines">
-        <button class="eng-btn active" data-engine="https://www.google.com/search?q=">Google</button>
-        <button class="eng-btn" data-engine="https://duckduckgo.com/?q=">DuckDuckGo</button>
-        <button class="eng-btn" data-engine="https://www.bing.com/search?q=">Bing</button>
-        <button class="eng-btn" data-engine="https://www.youtube.com/results?search_query=">YouTube</button>
-      </div>
-    </div>
-
-    <div id="quote-section">
-      <div id="quote-text">"The secret of getting ahead is getting started."</div>
-      <div id="quote-author">— Mark Twain</div>
-      <button id="quote-next">Next →</button>
-    </div>
-  </div>
-
-  <!-- WIDGET AREA — draggable grid -->
-  <div id="widget-area">
-    <div id="edit-banner">
-      <span>⋮⋮</span> Drag widgets to rearrange — click <strong>Done</strong> to save
-      <button class="icon-btn" id="edit-done-btn" style="margin-left:10px;padding:4px 14px;height:28px;font-size:0.72rem;">Done</button>
-    </div>
-
-    <div id="widget-grid">
-
-      <!-- LOFI RADIO -->
-      <div class="card" id="widget-lofi" data-widget-id="widget-lofi">
-        <div class="drag-handle" aria-label="Drag to reorder">⋮⋮</div>
-        <div class="card-title-row">
-          <div class="card-title" style="margin-bottom:0;">Lofi Radio</div>
-          <div id="lofi-eq" class="paused">
-            <div class="eq-bar"></div><div class="eq-bar"></div>
-            <div class="eq-bar"></div><div class="eq-bar"></div>
-            <div class="eq-bar"></div>
-          </div>
-        </div>
-        <div id="lofi-station-btns">
-          <button class="lofi-station-btn active" data-station-idx="0">🎵 Lofi</button>
-          <button class="lofi-station-btn"        data-station-idx="1">🌊 Synthwave</button>
-          <button class="lofi-station-btn"        data-station-idx="2">🌿 Chillhop</button>
-        </div>
-        <div id="lofi-controls">
-          <button id="lofi-play-btn" title="Play / Pause">▶</button>
-          <span id="lofi-station-name">Lofi Girl — beats to relax/study</span>
-          <button id="lofi-mute-btn" title="Mute / Unmute">🔊</button>
-        </div>
-      </div>
-
-      <!-- WEATHER -->
-      <div class="card" id="widget-weather" data-widget-id="widget-weather">
-        <div class="drag-handle">⋮⋮</div>
-        <div class="card-title">Singapore Weather</div>
-        <div id="weather-main">
-          <div id="weather-icon">🌤</div>
-          <div id="weather-temp">—°C</div>
-          <div style="flex:1">
-            <div id="weather-condition">Loading…</div>
-            <div id="weather-info"></div>
-          </div>
-        </div>
-      </div>
-
-      <!-- WORLD CLOCKS -->
-      <div class="card" id="widget-clocks" data-widget-id="widget-clocks">
-        <div class="drag-handle">⋮⋮</div>
-        <div class="card-title">World Clocks</div>
-        <div id="clocks-grid">
-          <div class="clock-item"><div class="clock-city">Singapore</div><div class="clock-time" id="wc-sgp">—</div></div>
-          <div class="clock-item"><div class="clock-city">London</div><div class="clock-time" id="wc-lon">—</div></div>
-          <div class="clock-item"><div class="clock-city">New York</div><div class="clock-time" id="wc-nyc">—</div></div>
-          <div class="clock-item"><div class="clock-city">Tokyo</div><div class="clock-time" id="wc-tyo">—</div></div>
-        </div>
-      </div>
-
-      <!-- POMODORO -->
-      <div class="card" id="widget-pomodoro" data-widget-id="widget-pomodoro">
-        <div class="drag-handle">⋮⋮</div>
-        <div class="card-title">Pomodoro Timer</div>
-        <div id="pomo-mode">Focus — 25:00</div>
-        <div id="pomo-display">25:00</div>
-        <div id="pomo-buttons">
-          <button class="pomo-btn" id="pomo-start">Start</button>
-          <button class="pomo-btn" id="pomo-reset">Reset</button>
-          <button class="pomo-btn" id="pomo-skip">Skip</button>
-        </div>
-        <div id="pomo-progress"><div id="pomo-progress-bar" style="width:100%"></div></div>
-      </div>
-
-      <!-- TODO -->
-      <div class="card" id="widget-todo" data-widget-id="widget-todo">
-        <div class="drag-handle">⋮⋮</div>
-        <div class="card-title">Todo List</div>
-        <div id="todo-input-row">
-          <input id="todo-input" type="text" placeholder="Add a task…" autocomplete="off"/>
-          <button id="todo-add-btn">Add</button>
-        </div>
-        <ul id="todo-list"></ul>
-        <button id="todo-clear">Clear completed</button>
-      </div>
-
-      <!-- QUICK LINKS -->
-      <div class="card" id="widget-links" data-widget-id="widget-links">
-        <div class="drag-handle">⋮⋮</div>
-        <div class="card-title">Quick Links</div>
-        <div id="links-grid"></div>
-        <div id="link-add-row">
-          <input id="link-label-input" type="text" placeholder="Label" autocomplete="off"/>
-          <input id="link-url-input"   type="text" placeholder="URL"   autocomplete="off"/>
-          <button id="link-add-btn">Add</button>
-        </div>
-      </div>
-
-      <!-- NOTES -->
-      <div class="card" id="widget-notes" data-widget-id="widget-notes">
-        <div class="drag-handle">⋮⋮</div>
-        <div class="card-title">Notes</div>
-        <textarea id="notes-textarea" placeholder="Jot something down…"></textarea>
-      </div>
-
-    </div><!-- /widget-grid -->
-  </div><!-- /widget-area -->
-
-</div><!-- /app -->
-
-<!-- FOCUS MODE OVERLAY -->
-<div id="focus-mode-overlay">
-  <button id="focus-mode-exit">Exit Focus Mode</button>
-  <div id="focus-mode-clock">00:00</div>
-  <div style="text-align:center">
-    <div id="focus-pomo-mode" style="font-size:0.7rem;letter-spacing:0.13em;text-transform:uppercase;color:var(--accent);margin-bottom:6px;"></div>
-    <div id="focus-pomo-display" style="font-family:var(--fm);font-size:2rem;font-weight:300;color:var(--text);"></div>
-  </div>
-</div>
-
-<!-- SETTINGS PANEL -->
-<div id="settings-panel">
-  <div id="settings-backdrop"></div>
-  <div id="settings-drawer">
-
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;">
-      <span style="font-family:var(--fd);font-size:1.3rem;font-weight:300;">Settings</span>
-      <button id="settings-close">✕ Close</button>
-    </div>
-
-    <!-- Profile -->
-    <div>
-      <div class="settings-section-title">Profile</div>
-      <div class="settings-field">
-        <label>Your Name</label>
-        <input type="text" id="setting-name" value="Juven Lim"/>
-      </div>
-    </div>
-
-    <!-- Background -->
-    <div>
-      <div class="settings-section-title">Background Image</div>
-      <div id="bg-status">Rotating Pexels images (daily)</div>
-      <div id="bg-settings-btns">
-        <button class="bg-action-btn" id="settings-upload-bg-btn">📁 Upload image</button>
-        <button class="bg-action-btn danger" id="settings-reset-bg-btn">↩ Reset to default</button>
-      </div>
-    </div>
-
-    <!-- Appearance -->
-    <div>
-      <div class="settings-section-title">Appearance</div>
-      <div class="settings-field" style="margin-bottom:10px;">
-        <label>Theme</label>
-        <div class="select-row">
-          <button class="sel-btn active" data-theme-btn="dark">Dark</button>
-          <button class="sel-btn"        data-theme-btn="light">Light</button>
-        </div>
-      </div>
-      <div class="settings-field" style="margin-bottom:10px;">
-        <label>Time Format</label>
-        <div class="select-row">
-          <button class="sel-btn"        data-fmt-btn="12">12h</button>
-          <button class="sel-btn active" data-fmt-btn="24">24h</button>
-        </div>
-      </div>
-      <div class="settings-field">
-        <label>Accent Color</label>
-        <div class="color-swatches">
-          <div class="swatch active" data-accent="teal"   style="background:#2dd4bf;" title="Teal"></div>
-          <div class="swatch"        data-accent="blue"   style="background:#60a5fa;" title="Blue"></div>
-          <div class="swatch"        data-accent="pink"   style="background:#f472b6;" title="Pink"></div>
-          <div class="swatch"        data-accent="orange" style="background:#fb923c;" title="Orange"></div>
-          <div class="swatch"        data-accent="purple" style="background:#c084fc;" title="Purple"></div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Widget Visibility -->
-    <div>
-      <div class="settings-section-title">Widgets</div>
-      <div id="widget-toggles">
-        <div class="toggle-row"><span class="toggle-label">Lofi Radio</span>   <button class="toggle on" data-widget="widget-lofi"></button></div>
-        <div class="toggle-row"><span class="toggle-label">Weather</span>      <button class="toggle on" data-widget="widget-weather"></button></div>
-        <div class="toggle-row"><span class="toggle-label">World Clocks</span> <button class="toggle on" data-widget="widget-clocks"></button></div>
-        <div class="toggle-row"><span class="toggle-label">Pomodoro</span>     <button class="toggle on" data-widget="widget-pomodoro"></button></div>
-        <div class="toggle-row"><span class="toggle-label">Todo List</span>    <button class="toggle on" data-widget="widget-todo"></button></div>
-        <div class="toggle-row"><span class="toggle-label">Quick Links</span>  <button class="toggle on" data-widget="widget-links"></button></div>
-        <div class="toggle-row"><span class="toggle-label">Notes</span>        <button class="toggle on" data-widget="widget-notes"></button></div>
-        <div class="toggle-row"><span class="toggle-label">Quote</span>        <button class="toggle on" data-widget="quote-widget"></button></div>
-      </div>
-    </div>
-
-  </div>
-</div>
-
-<!-- ================================================================
-     JAVASCRIPT
-     ================================================================ -->
-<script>
-'use strict';
-
-/* ── HELPERS ─────────────────────────────────────────────────────── */
-const $ = id => document.getElementById(id);
-const ls = {
-  get:(k,d)=>{ try{const v=localStorage.getItem('jl_'+k);return v!==null?JSON.parse(v):d;}catch{return d;} },
-  set:(k,v)=>{ try{localStorage.setItem('jl_'+k,JSON.stringify(v));}catch(e){console.warn('ls',k,e);} },
-  del:(k)  =>{ try{localStorage.removeItem('jl_'+k);}catch{} }
-};
-const todayKey=()=>new Date().toISOString().slice(0,10);
-const pad2=n=>String(n).padStart(2,'0');
-const escHtml=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-
-/* ── SETTINGS ────────────────────────────────────────────────────── */
-const settings = ls.get('settings',{
-  name:'Juven Lim', theme:'dark', fmt:'24', accent:'teal',
-  widgets:{
-    'widget-lofi':true,'widget-weather':true,'widget-clocks':true,
-    'widget-pomodoro':true,'widget-todo':true,'widget-links':true,
-    'widget-notes':true,'quote-widget':true
-  }
-});
-['widget-lofi','widget-weather','widget-clocks','widget-pomodoro','widget-todo','widget-links','widget-notes','quote-widget']
-  .forEach(k=>{if(settings.widgets[k]===undefined)settings.widgets[k]=true;});
-const saveSettings=()=>ls.set('settings',settings);
-
-const applySettings=()=>{
-  document.body.dataset.theme  = settings.theme;
-  document.body.dataset.accent = settings.accent;
-  document.querySelectorAll('[data-theme-btn]').forEach(b=>b.classList.toggle('active',b.dataset.themeBtn===settings.theme));
-  document.querySelectorAll('[data-fmt-btn]').forEach(b=>b.classList.toggle('active',b.dataset.fmtBtn===settings.fmt));
-  document.querySelectorAll('.swatch').forEach(s=>s.classList.toggle('active',s.dataset.accent===settings.accent));
-  $('setting-name').value=settings.name;
-  document.querySelectorAll('[data-widget]').forEach(btn=>{
-    const id=btn.dataset.widget;
-    const on=settings.widgets[id]!==false;
-    btn.classList.toggle('on',on);
-    const el=$(id);
-    if(el)el.classList.toggle('hidden',!on);
-  });
-  updateGreeting();
-};
-
-/* ── BACKGROUND ──────────────────────────────────────────────────── */
-const BG_IMAGES=[
-  'https://images.pexels.com/photos/1624496/pexels-photo-1624496.jpeg?auto=compress&cs=tinysrgb&w=1920',
-  'https://images.pexels.com/photos/36717/amazing-animal-beautiful-beautifull.jpg?auto=compress&cs=tinysrgb&w=1920',
-  'https://images.pexels.com/photos/1366919/pexels-photo-1366919.jpeg?auto=compress&cs=tinysrgb&w=1920',
-  'https://images.pexels.com/photos/1252869/pexels-photo-1252869.jpeg?auto=compress&cs=tinysrgb&w=1920',
-  'https://images.pexels.com/photos/1287145/pexels-photo-1287145.jpeg?auto=compress&cs=tinysrgb&w=1920',
-  'https://images.pexels.com/photos/2356045/pexels-photo-2356045.jpeg?auto=compress&cs=tinysrgb&w=1920',
-  'https://images.pexels.com/photos/459225/pexels-photo-459225.jpeg?auto=compress&cs=tinysrgb&w=1920',
-  'https://images.pexels.com/photos/417173/pexels-photo-417173.jpeg?auto=compress&cs=tinysrgb&w=1920',
-  'https://images.pexels.com/photos/462118/pexels-photo-462118.jpeg?auto=compress&cs=tinysrgb&w=1920',
-  'https://images.pexels.com/photos/1891234/pexels-photo-1891234.jpeg?auto=compress&cs=tinysrgb&w=1920',
-  'https://images.pexels.com/photos/3408744/pexels-photo-3408744.jpeg?auto=compress&cs=tinysrgb&w=1920',
-  'https://images.pexels.com/photos/1434580/pexels-photo-1434580.jpeg?auto=compress&cs=tinysrgb&w=1920',
-  'https://images.pexels.com/photos/3061171/pexels-photo-3061171.jpeg?auto=compress&cs=tinysrgb&w=1920',
-  'https://images.pexels.com/photos/1323550/pexels-photo-1323550.jpeg?auto=compress&cs=tinysrgb&w=1920'
-];
-
-const updateBgStatusText=()=>{
-  const el=$('bg-status');
-  if(el)el.textContent=ls.get('custom_bg',null)?'✓ Custom image active':'Rotating Pexels images (daily)';
-};
-const applyBackground=()=>{
-  const custom=ls.get('custom_bg',null);
-  if(custom){
-    $('bg-layer').style.backgroundImage=`url('${custom}')`;
-    $('custom-bg-indicator').classList.add('visible');
-    updateBgStatusText();return;
-  }
-  $('custom-bg-indicator').classList.remove('visible');
-  const today=todayKey();
-  let idx=ls.get('bg_idx',0);
-  const lastDate=ls.get('bg_date','');
-  if(lastDate!==today){idx=(idx+1)%BG_IMAGES.length;ls.set('bg_idx',idx);ls.set('bg_date',today);}
-  $('bg-layer').style.backgroundImage=`url('${BG_IMAGES[idx]}')`;
-  updateBgStatusText();
-};
-const handleBgUpload=file=>{
-  if(!file||!file.type.startsWith('image/'))return;
-  const reader=new FileReader();
-  reader.onload=e=>{
-    try{ls.set('custom_bg',e.target.result);applyBackground();}
-    catch{ls.del('custom_bg');applyBackground();alert('Image too large for storage. Try under 3 MB.');}
-  };
-  reader.readAsDataURL(file);
-};
-const resetBackground=()=>{ls.del('custom_bg');applyBackground();};
-$('bg-upload-btn').addEventListener('click',()=>$('bg-file-input').click());
-$('bg-file-input').addEventListener('change',e=>{if(e.target.files&&e.target.files[0])handleBgUpload(e.target.files[0]);e.target.value='';});
-$('custom-bg-reset').addEventListener('click',resetBackground);
-$('settings-reset-bg-btn').addEventListener('click',resetBackground);
-$('settings-upload-bg-btn').addEventListener('click',()=>$('bg-file-input').click());
-
-/* ── CLOCK & DATE ────────────────────────────────────────────────── */
-const DAYS=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
-const MONTHS=['January','February','March','April','May','June','July','August','September','October','November','December'];
-const formatTime=(d,fmt24)=>{
-  if(fmt24)return`${pad2(d.getHours())}:${pad2(d.getMinutes())}`;
-  let h=d.getHours(),ap=h>=12?'PM':'AM';h=h%12||12;
-  return`${pad2(h)}:${pad2(d.getMinutes())} ${ap}`;
-};
-const updateGreeting=()=>{
-  const h=new Date().getHours();
-  const g=h<12?'Good morning':h<18?'Good afternoon':'Good evening';
-  $('greeting').textContent=`${g}, ${settings.name}`;
-};
-const updateClock=()=>{
-  const d=new Date(),fmt24=settings.fmt==='24';
-  $('clock').textContent=formatTime(d,fmt24);
-  $('date-display').textContent=`${DAYS[d.getDay()]}, ${d.getDate()} ${MONTHS[d.getMonth()]} ${d.getFullYear()}`;
-  if(focusModeActive)$('focus-mode-clock').textContent=formatTime(d,fmt24);
-};
-
-/* ── QUOTES ──────────────────────────────────────────────────────── */
-const QUOTES=[
-  {text:"The secret of getting ahead is getting started.",author:"Mark Twain"},
-  {text:"It does not matter how slowly you go as long as you do not stop.",author:"Confucius"},
-  {text:"Everything you've ever wanted is on the other side of fear.",author:"George Addair"},
-  {text:"Success is not final, failure is not fatal: it is the courage to continue that counts.",author:"Winston Churchill"},
-  {text:"Hardships often prepare ordinary people for an extraordinary destiny.",author:"C.S. Lewis"},
-  {text:"Believe you can and you're halfway there.",author:"Theodore Roosevelt"},
-  {text:"Act as if what you do makes a difference. It does.",author:"William James"},
-  {text:"What lies behind us and what lies before us are tiny matters compared to what lies within us.",author:"Ralph Waldo Emerson"},
-  {text:"The only way to do great work is to love what you do.",author:"Steve Jobs"},
-  {text:"You miss 100% of the shots you don't take.",author:"Wayne Gretzky"},
-  {text:"Whether you think you can or you think you can't, you're right.",author:"Henry Ford"},
-  {text:"The future belongs to those who believe in the beauty of their dreams.",author:"Eleanor Roosevelt"},
-  {text:"In the middle of every difficulty lies opportunity.",author:"Albert Einstein"},
-  {text:"It always seems impossible until it's done.",author:"Nelson Mandela"},
-  {text:"Do not wait to strike till the iron is hot; make it hot by striking.",author:"William Butler Yeats"},
-  {text:"Keep your face always toward the sunshine, and shadows will fall behind you.",author:"Walt Whitman"},
-  {text:"The only limit to our realization of tomorrow will be our doubts of today.",author:"Franklin D. Roosevelt"},
-  {text:"Start where you are. Use what you have. Do what you can.",author:"Arthur Ashe"},
-  {text:"Life is what happens when you're busy making other plans.",author:"John Lennon"},
-  {text:"You are never too old to set another goal or to dream a new dream.",author:"C.S. Lewis"},
-  {text:"The way to get started is to quit talking and begin doing.",author:"Walt Disney"},
-  {text:"Don't watch the clock; do what it does. Keep going.",author:"Sam Levenson"},
-  {text:"Too many of us are not living our dreams because we are living our fears.",author:"Les Brown"},
-  {text:"I have not failed. I've just found 10,000 ways that won't work.",author:"Thomas Edison"},
-  {text:"A person who never made a mistake never tried anything new.",author:"Albert Einstein"},
-  {text:"The best time to plant a tree was 20 years ago. The second best time is now.",author:"Chinese Proverb"},
-  {text:"An unexamined life is not worth living.",author:"Socrates"},
-  {text:"Spread love everywhere you go. Let no one ever come to you without leaving happier.",author:"Mother Teresa"},
-  {text:"When you reach the end of your rope, tie a knot in it and hang on.",author:"Franklin D. Roosevelt"},
-  {text:"Always remember that you are absolutely unique. Just like everyone else.",author:"Margaret Mead"}
-];
-let currentQuoteIdx=0;
-const initQuote=()=>{
-  const today=todayKey();const saved=ls.get('quote',null);
-  if(saved&&saved.date===today)currentQuoteIdx=saved.idx;
-  else{currentQuoteIdx=Math.floor(Math.random()*QUOTES.length);ls.set('quote',{date:today,idx:currentQuoteIdx});}
-  renderQuote();
-};
-const renderQuote=()=>{
-  const q=QUOTES[currentQuoteIdx];
-  $('quote-text').textContent=`"${q.text}"`;
-  $('quote-author').textContent=`— ${q.author}`;
-};
-$('quote-next').addEventListener('click',()=>{
-  currentQuoteIdx=(currentQuoteIdx+1)%QUOTES.length;
-  ls.set('quote',{date:todayKey(),idx:currentQuoteIdx});renderQuote();
-});
-
-/* ── SEARCH BAR ──────────────────────────────────────────────────── */
-let activeEngine = ls.get('search_engine', 'https://www.google.com/search?q=');
-
-const initSearch = () => {
-  // Restore saved engine
-  document.querySelectorAll('.eng-btn').forEach(btn => {
-    btn.classList.toggle('active', btn.dataset.engine === activeEngine);
-  });
-  // Engine selector
-  document.querySelectorAll('.eng-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      activeEngine = btn.dataset.engine;
-      ls.set('search_engine', activeEngine);
-      document.querySelectorAll('.eng-btn').forEach(b => b.classList.toggle('active', b === btn));
-    });
-  });
-  // Submit on Enter or button click
-  const doSearch = () => {
-    const q = $('search-input').value.trim();
-    if (!q) return;
-    window.open(activeEngine + encodeURIComponent(q), '_blank');
-    $('search-input').value = '';
-  };
-  $('search-input').addEventListener('keydown', e => e.key === 'Enter' && doSearch());
-  $('search-btn').addEventListener('click', doSearch);
-};
-
-/* ── TODO ────────────────────────────────────────────────────────── */
-let todos=ls.get('todos',[]);
-const saveTodos=()=>ls.set('todos',todos);
-const renderTodos=()=>{
-  const ul=$('todo-list');ul.innerHTML='';
-  todos.forEach((t,i)=>{
-    const li=document.createElement('li');
-    li.className='todo-item'+(t.done?' done':'');
-    li.innerHTML=`<div class="todo-check" data-i="${i}"></div><span class="todo-text">${escHtml(t.text)}</span><span class="todo-del" data-i="${i}">✕</span>`;
-    ul.appendChild(li);
-  });
-  ul.querySelectorAll('.todo-check').forEach(el=>el.addEventListener('click',()=>{todos[+el.dataset.i].done=!todos[+el.dataset.i].done;saveTodos();renderTodos();}));
-  ul.querySelectorAll('.todo-del').forEach(el=>el.addEventListener('click',()=>{todos.splice(+el.dataset.i,1);saveTodos();renderTodos();}));
-};
-const addTodo=()=>{const v=$('todo-input').value.trim();if(!v)return;todos.push({text:v,done:false});saveTodos();renderTodos();$('todo-input').value='';};
-$('todo-add-btn').addEventListener('click',addTodo);
-$('todo-input').addEventListener('keydown',e=>e.key==='Enter'&&addTodo());
-$('todo-clear').addEventListener('click',()=>{todos=todos.filter(t=>!t.done);saveTodos();renderTodos();});
-
-/* ── QUICK LINKS ─────────────────────────────────────────────────── */
-let links=ls.get('links',[{label:'Gmail',url:'https://mail.google.com'},{label:'GitHub',url:'https://github.com'},{label:'YouTube',url:'https://youtube.com'}]);
-const saveLinks=()=>ls.set('links',links);
-const renderLinks=()=>{
-  const g=$('links-grid');g.innerHTML='';
-  links.forEach((l,i)=>{
-    const d=document.createElement('div');d.className='link-chip';
-    d.innerHTML=`<a href="${escHtml(l.url)}" target="_blank" rel="noopener">${escHtml(l.label)}</a><span class="link-chip-del" data-i="${i}">✕</span>`;
-    d.querySelector('.link-chip-del').addEventListener('click',()=>{links.splice(i,1);saveLinks();renderLinks();});
-    g.appendChild(d);
-  });
-};
-const addLink=()=>{
-  const label=$('link-label-input').value.trim();let url=$('link-url-input').value.trim();
-  if(!label||!url)return;
-  if(!/^https?:\/\//i.test(url))url='https://'+url;
-  links.push({label,url});saveLinks();renderLinks();
-  $('link-label-input').value='';$('link-url-input').value='';
-};
-$('link-add-btn').addEventListener('click',addLink);
-$('link-url-input').addEventListener('keydown',e=>e.key==='Enter'&&addLink());
-
-/* ── NOTES ───────────────────────────────────────────────────────── */
-$('notes-textarea').value=ls.get('notes','');
-$('notes-textarea').addEventListener('input',()=>ls.set('notes',$('notes-textarea').value));
-
-/* ── POMODORO ────────────────────────────────────────────────────── */
-const POMO={FOCUS:25*60,BREAK:5*60};
-let pomoState={mode:'focus',total:POMO.FOCUS,remaining:POMO.FOCUS,running:false,interval:null};
-const renderPomo=()=>{
-  const m=Math.floor(pomoState.remaining/60),s=pomoState.remaining%60;
-  const str=`${pad2(m)}:${pad2(s)}`;
-  $('pomo-display').textContent=str;$('focus-pomo-display').textContent=str;
-  const ml=pomoState.mode==='focus'?'Focus':'Break',mc=pomoState.mode==='focus'?'25:00':'5:00';
-  $('pomo-mode').textContent=`${ml} — ${mc}`;$('focus-pomo-mode').textContent=`${ml} — ${mc}`;
-  $('pomo-progress-bar').style.width=((pomoState.remaining/pomoState.total)*100)+'%';
-  $('pomo-start').textContent=pomoState.running?'Pause':'Start';
-  $('pomo-start').classList.toggle('active',pomoState.running);
-};
-const pomoTick=()=>{
-  if(pomoState.remaining<=0){
-    clearInterval(pomoState.interval);pomoState.running=false;
-    alert(pomoState.mode==='focus'?'Focus session complete! Take a break.':'Break over! Ready to focus?');
-    pomoState.mode=pomoState.mode==='focus'?'break':'focus';
-    pomoState.total=pomoState.mode==='focus'?POMO.FOCUS:POMO.BREAK;
-    pomoState.remaining=pomoState.total;
-  }else{pomoState.remaining--;}
-  renderPomo();
-};
-$('pomo-start').addEventListener('click',()=>{
-  if(pomoState.running){clearInterval(pomoState.interval);pomoState.running=false;}
-  else{pomoState.running=true;pomoState.interval=setInterval(pomoTick,1000);}
-  renderPomo();
-});
-$('pomo-reset').addEventListener('click',()=>{clearInterval(pomoState.interval);pomoState.running=false;pomoState.remaining=pomoState.total;renderPomo();});
-$('pomo-skip').addEventListener('click',()=>{
-  clearInterval(pomoState.interval);pomoState.running=false;
-  pomoState.mode=pomoState.mode==='focus'?'break':'focus';
-  pomoState.total=pomoState.mode==='focus'?POMO.FOCUS:POMO.BREAK;
-  pomoState.remaining=pomoState.total;renderPomo();
-});
-
-/* ── WEATHER ─────────────────────────────────────────────────────── */
-const WMO_CODES={0:'Clear sky',1:'Mainly clear',2:'Partly cloudy',3:'Overcast',45:'Fog',48:'Icy fog',51:'Light drizzle',53:'Drizzle',55:'Heavy drizzle',61:'Slight rain',63:'Moderate rain',65:'Heavy rain',71:'Slight snow',73:'Moderate snow',75:'Heavy snow',80:'Slight showers',81:'Showers',82:'Heavy showers',95:'Thunderstorm',96:'Thunderstorm w/ hail',99:'Heavy thunderstorm'};
-const WMO_ICONS={0:'☀️',1:'🌤',2:'⛅',3:'☁️',45:'🌫',48:'🌫',51:'🌦',53:'🌦',55:'🌧',61:'🌧',63:'🌧',65:'🌧',71:'🌨',73:'❄️',75:'❄️',80:'🌦',81:'🌧',82:'⛈',95:'⛈',96:'⛈',99:'⛈'};
-const fetchWeather=async()=>{
-  try{
-    const r=await fetch('https://api.open-meteo.com/v1/forecast?latitude=1.3521&longitude=103.8198&current=temperature_2m,weathercode,windspeed_10m&timezone=Asia%2FSingapore');
-    const d=await r.json();const c=d.current;const code=c.weathercode;
-    $('weather-temp').textContent=`${Math.round(c.temperature_2m)}°C`;
-    $('weather-icon').textContent=WMO_ICONS[code]||'🌡';
-    $('weather-condition').textContent=WMO_CODES[code]||'Unknown';
-    $('weather-info').textContent=`Wind: ${Math.round(c.windspeed_10m)} km/h`;
-  }catch{$('weather-condition').textContent='Unavailable';}
-};
-
-/* ── WORLD CLOCKS ────────────────────────────────────────────────── */
-const ZONES=[{id:'wc-sgp',tz:'Asia/Singapore'},{id:'wc-lon',tz:'Europe/London'},{id:'wc-nyc',tz:'America/New_York'},{id:'wc-tyo',tz:'Asia/Tokyo'}];
-const updateWorldClocks=()=>{
-  const fmt24=settings.fmt==='24',now=new Date();
-  ZONES.forEach(z=>{try{$(z.id).textContent=now.toLocaleTimeString('en-SG',{timeZone:z.tz,hour:'2-digit',minute:'2-digit',hour12:!fmt24});}catch{}});
-};
-
-/* ── LOFI MUSIC PLAYER ───────────────────────────────────────────── */
-const STATIONS=[
-  {id:'jfKfPfyJRdk',name:'Lofi Girl — beats to relax/study'},
-  {id:'4xDzrJKXOOY',name:'Synthwave Radio'},
-  {id:'rUxyKA_-grg',name:'Chillhop Music'}
-];
-const _sl=ls.get('lofi',{});
-let lofiState={playing:false,stationIdx:_sl.stationIdx||0,muted:_sl.muted||false};
-const saveLofi=()=>ls.set('lofi',{stationIdx:lofiState.stationIdx,muted:lofiState.muted,playing:lofiState.playing});
-const buildSrc=(idx,muted)=>{const v=STATIONS[idx].id;return`https://www.youtube.com/embed/${v}?autoplay=1&mute=${muted?1:0}&controls=0&loop=1&playlist=${v}&rel=0`;};
-const renderLofi=()=>{
-  document.querySelectorAll('.lofi-station-btn').forEach((b,i)=>b.classList.toggle('active',i===lofiState.stationIdx));
-  $('lofi-play-btn').textContent=lofiState.playing?'⏸':'▶';
-  $('lofi-station-name').textContent=STATIONS[lofiState.stationIdx].name;
-  $('lofi-mute-btn').textContent=lofiState.muted?'🔇':'🔊';
-  $('lofi-mute-btn').classList.toggle('muted',lofiState.muted);
-  $('lofi-eq').classList.toggle('paused',!lofiState.playing);
-  const iframe=$('lofi-iframe');
-  if(lofiState.playing){const src=buildSrc(lofiState.stationIdx,lofiState.muted);if(iframe.src!==src)iframe.src=src;}
-  else iframe.src='about:blank';
-  saveLofi();
-};
-const reloadStream=()=>{$('lofi-iframe').src='about:blank';setTimeout(renderLofi,120);};
-$('lofi-play-btn').addEventListener('click',()=>{lofiState.playing=!lofiState.playing;renderLofi();});
-document.querySelectorAll('.lofi-station-btn').forEach((b,i)=>b.addEventListener('click',()=>{if(lofiState.stationIdx===i)return;lofiState.stationIdx=i;if(lofiState.playing)reloadStream();else renderLofi();}));
-$('lofi-mute-btn').addEventListener('click',()=>{lofiState.muted=!lofiState.muted;if(lofiState.playing)reloadStream();else renderLofi();});
-
-/* ── FOCUS MODE ──────────────────────────────────────────────────── */
-let focusModeActive=false;
-const overlay=$('focus-mode-overlay');
-$('focus-mode-btn').addEventListener('click',()=>{
-  focusModeActive=!focusModeActive;
-  overlay.classList.toggle('active',focusModeActive);
-  $('focus-mode-btn').textContent=focusModeActive?'⊗':'⊙';
-});
-$('focus-mode-exit').addEventListener('click',()=>{focusModeActive=false;overlay.classList.remove('active');$('focus-mode-btn').textContent='⊙';});
-
-/* ── THEME TOGGLE ────────────────────────────────────────────────── */
-$('theme-toggle').addEventListener('click',()=>{settings.theme=settings.theme==='dark'?'light':'dark';saveSettings();applySettings();});
-
-/* ── SETTINGS PANEL ──────────────────────────────────────────────── */
-const settingsPanel=$('settings-panel');
-$('settings-btn').addEventListener('click',()=>settingsPanel.classList.add('open'));
-$('settings-backdrop').addEventListener('click',()=>settingsPanel.classList.remove('open'));
-$('settings-close').addEventListener('click',()=>settingsPanel.classList.remove('open'));
-$('setting-name').addEventListener('input',()=>{settings.name=$('setting-name').value||'Juven Lim';saveSettings();updateGreeting();});
-document.querySelectorAll('[data-theme-btn]').forEach(b=>b.addEventListener('click',()=>{settings.theme=b.dataset.themeBtn;saveSettings();applySettings();}));
-document.querySelectorAll('[data-fmt-btn]').forEach(b=>b.addEventListener('click',()=>{settings.fmt=b.dataset.fmtBtn;saveSettings();applySettings();updateClock();updateWorldClocks();}));
-document.querySelectorAll('.swatch').forEach(s=>s.addEventListener('click',()=>{settings.accent=s.dataset.accent;saveSettings();applySettings();}));
-document.querySelectorAll('[data-widget]').forEach(btn=>btn.addEventListener('click',()=>{const id=btn.dataset.widget;settings.widgets[id]=!settings.widgets[id];saveSettings();applySettings();}));
-
-/* ================================================================
-   DRAG-AND-DROP WIDGET REORDER
-   ================================================================
-   Strategy: HTML5 drag-and-drop API on the widget cards.
-   - Drag is initiated only via the .drag-handle element (edit mode only).
-   - We track dragged item and swap DOM positions using insertBefore.
-   - Order is saved as an array of data-widget-id strings in localStorage.
-   ================================================================ */
-
-let editMode = false;
-let dragSrc  = null; // the card currently being dragged
-
-/** Persist current DOM order of widgets. */
-const saveWidgetOrder = () => {
-  const grid = $('widget-grid');
-  const order = [...grid.querySelectorAll('.card[data-widget-id]')].map(c => c.dataset.widgetId);
-  ls.set('widget_order', order);
-};
-
-/** Restore widget order from localStorage. */
-const restoreWidgetOrder = () => {
-  const order = ls.get('widget_order', null);
-  if (!order || !Array.isArray(order)) return;
-  const grid = $('widget-grid');
-  order.forEach(id => {
-    const el = grid.querySelector(`[data-widget-id="${id}"]`);
-    if (el) grid.appendChild(el); // move to end in order
-  });
-};
-
-/** Wire drag events on a single card. */
-const wireDragCard = card => {
-  const handle = card.querySelector('.drag-handle');
-  if (!handle) return;
-
-  // Only start drag when mouse is on the handle
-  handle.addEventListener('mousedown', () => { card.draggable = true; });
-  handle.addEventListener('mouseup',   () => { card.draggable = false; });
-
-  card.addEventListener('dragstart', e => {
-    if (!editMode) { e.preventDefault(); return; }
-    dragSrc = card;
-    // Small delay so the browser renders the ghost before we fade
-    setTimeout(() => card.classList.add('dragging'), 0);
-    e.dataTransfer.effectAllowed = 'move';
-    e.dataTransfer.setData('text/plain', card.dataset.widgetId);
-  });
-
-  card.addEventListener('dragend', () => {
-    card.classList.remove('dragging');
-    card.draggable = false;
-    // Clear all drop indicators
-    document.querySelectorAll('.card.drag-over').forEach(c => c.classList.remove('drag-over'));
-    saveWidgetOrder();
-    dragSrc = null;
-  });
-
-  card.addEventListener('dragover', e => {
-    if (!editMode || !dragSrc || dragSrc === card) return;
-    e.preventDefault();
-    e.dataTransfer.dropEffect = 'move';
-    card.classList.add('drag-over');
-  });
-
-  card.addEventListener('dragleave', e => {
-    // Only remove if actually leaving the card (not a child)
-    if (!card.contains(e.relatedTarget)) card.classList.remove('drag-over');
-  });
-
-  card.addEventListener('drop', e => {
-    if (!editMode || !dragSrc || dragSrc === card) return;
-    e.preventDefault();
-    card.classList.remove('drag-over');
-
-    const grid = $('widget-grid');
-    const cards = [...grid.querySelectorAll('.card[data-widget-id]')];
-    const srcIdx = cards.indexOf(dragSrc);
-    const tgtIdx = cards.indexOf(card);
-
-    // Insert before or after depending on direction
-    if (srcIdx < tgtIdx) {
-      grid.insertBefore(dragSrc, card.nextSibling);
-    } else {
-      grid.insertBefore(dragSrc, card);
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Focus Home</title>
+  <style>
+    :root {
+      --bg1: #182848;
+      --bg2: #4b6cb7;
+      --glass: rgba(255,255,255,0.14);
+      --glass-strong: rgba(255,255,255,0.22);
+      --text: #ffffff;
+      --muted: rgba(255,255,255,0.76);
+      --line: rgba(255,255,255,0.20);
+      --shadow: 0 18px 60px rgba(0,0,0,0.25);
+      --radius: 24px;
     }
 
-    // Animate the dropped card
-    dragSrc.style.transform = 'scale(1.02)';
-    setTimeout(() => { dragSrc.style.transform = ''; }, 200);
-  });
-};
+    * { box-sizing: border-box; }
 
-/** Toggle edit mode on/off. */
-const toggleEditMode = (force) => {
-  editMode = (force !== undefined) ? force : !editMode;
-  document.body.classList.toggle('edit-mode', editMode);
-  $('edit-banner').classList.toggle('visible', editMode);
-  const btn = $('edit-layout-btn');
-  btn.classList.toggle('edit-on', editMode);
-  btn.textContent = editMode ? '✦ Done Editing' : '✦ Edit Layout';
-  if (!editMode) saveWidgetOrder();
-};
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: var(--text);
+      background:
+        linear-gradient(135deg, rgba(0,0,0,0.35), rgba(0,0,0,0.12)),
+        linear-gradient(135deg, var(--bg1), var(--bg2));
+      overflow-x: hidden;
+    }
 
-$('edit-layout-btn').addEventListener('click', () => toggleEditMode());
-$('edit-done-btn').addEventListener('click',   () => toggleEditMode(false));
+    body.image-bg {
+      background:
+        linear-gradient(135deg, rgba(0,0,0,0.42), rgba(0,0,0,0.18)),
+        var(--photo-url) center/cover fixed;
+    }
 
-/* Wire all cards on load */
-const initDragDrop = () => {
-  restoreWidgetOrder();
-  document.querySelectorAll('#widget-grid .card[data-widget-id]').forEach(wireDragCard);
-};
+    button, input, select, textarea {
+      font: inherit;
+    }
 
-/* ================================================================
-   INIT
-   ================================================================ */
-const init = () => {
-  applyBackground();
-  applySettings();
-  initQuote();
-  initSearch();
-  renderTodos();
-  renderLinks();
-  renderPomo();
-  renderLofi();
-  fetchWeather();
-  updateClock();
-  updateWorldClocks();
-  updateGreeting();
-  updateBgStatusText();
-  initDragDrop();
+    button {
+      cursor: pointer;
+      border: 0;
+      color: var(--text);
+      background: var(--glass);
+    }
 
-  setInterval(updateClock,       1000);
-  setInterval(updateWorldClocks, 60000);
-  setInterval(fetchWeather,      600000);
-};
+    button:hover, .shortcut:hover, .panel:hover {
+      background: var(--glass-strong);
+    }
 
-document.addEventListener('DOMContentLoaded', init);
-</script>
+    .app {
+      min-height: 100vh;
+      padding: 26px;
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+      gap: 18px;
+    }
+
+    .topbar, .bottombar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      position: relative;
+      z-index: 2;
+    }
+
+    .top-left, .top-right, .bottom-left, .bottom-right {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .chip {
+      padding: 10px 13px;
+      border-radius: 999px;
+      background: var(--glass);
+      backdrop-filter: blur(18px);
+      border: 1px solid var(--line);
+      box-shadow: var(--shadow);
+      color: var(--text);
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .center {
+      width: min(980px, 100%);
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      gap: 18px;
+      padding: 20px 0;
+      position: relative;
+      z-index: 1;
+    }
+
+    .clock {
+      font-size: clamp(76px, 15vw, 170px);
+      font-weight: 650;
+      letter-spacing: -0.08em;
+      line-height: 0.86;
+      text-shadow: 0 12px 35px rgba(0,0,0,0.22);
+    }
+
+    .greeting {
+      font-size: clamp(22px, 4vw, 46px);
+      font-weight: 520;
+      letter-spacing: -0.03em;
+    }
+
+    .focus-card {
+      width: min(680px, 100%);
+      padding: 22px;
+      border-radius: var(--radius);
+      background: var(--glass);
+      backdrop-filter: blur(20px);
+      border: 1px solid var(--line);
+      box-shadow: var(--shadow);
+    }
+
+    .prompt {
+      color: var(--muted);
+      margin-bottom: 10px;
+      font-size: 16px;
+    }
+
+    .focus-row {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 10px;
+    }
+
+    .clean-input {
+      width: 100%;
+      border: 0;
+      border-bottom: 2px solid rgba(255,255,255,0.48);
+      background: transparent;
+      color: var(--text);
+      outline: 0;
+      padding: 12px 8px;
+      text-align: center;
+      font-size: clamp(20px, 4vw, 34px);
+    }
+
+    .clean-input::placeholder, textarea::placeholder {
+      color: rgba(255,255,255,0.55);
+    }
+
+    .icon-btn {
+      width: 44px;
+      height: 44px;
+      border-radius: 999px;
+      display: grid;
+      place-items: center;
+      border: 1px solid var(--line);
+    }
+
+    .search-wrap {
+      width: min(680px, 100%);
+      display: grid;
+      grid-template-columns: 140px 1fr;
+      gap: 10px;
+    }
+
+    .search-wrap select, .search-wrap input {
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 14px 16px;
+      color: var(--text);
+      background: var(--glass);
+      backdrop-filter: blur(18px);
+      outline: 0;
+      box-shadow: var(--shadow);
+    }
+
+    .search-wrap option {
+      color: #111;
+    }
+
+    .quote {
+      max-width: 760px;
+      color: var(--muted);
+      font-size: 16px;
+      line-height: 1.6;
+      text-shadow: 0 8px 25px rgba(0,0,0,0.2);
+    }
+
+    .panels {
+      position: fixed;
+      right: 24px;
+      bottom: 82px;
+      width: min(380px, calc(100vw - 48px));
+      display: grid;
+      gap: 12px;
+      z-index: 10;
+    }
+
+    .panel {
+      display: none;
+      padding: 18px;
+      border-radius: var(--radius);
+      background: rgba(10,10,18,0.62);
+      backdrop-filter: blur(24px);
+      border: 1px solid var(--line);
+      box-shadow: var(--shadow);
+      text-align: left;
+    }
+
+    .panel.active { display: block; }
+
+    .panel h2 {
+      margin: 0 0 12px;
+      font-size: 18px;
+    }
+
+    .task-input, .note-box, .settings-input {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 12px 13px;
+      background: rgba(255,255,255,0.12);
+      color: var(--text);
+      outline: 0;
+      margin-bottom: 10px;
+    }
+
+    .note-box {
+      min-height: 120px;
+      resize: vertical;
+    }
+
+    .task-list, .link-list {
+      display: grid;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .task-item, .link-item {
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      align-items: center;
+      gap: 10px;
+      padding: 10px;
+      border-radius: 14px;
+      background: rgba(255,255,255,0.10);
+      border: 1px solid rgba(255,255,255,0.12);
+    }
+
+    .task-item.done span {
+      text-decoration: line-through;
+      color: rgba(255,255,255,0.58);
+    }
+
+    .tiny {
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .shortcut-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(60px, 1fr));
+      gap: 10px;
+      width: min(560px, 100%);
+    }
+
+    .shortcut {
+      min-height: 74px;
+      border-radius: 20px;
+      background: var(--glass);
+      border: 1px solid var(--line);
+      backdrop-filter: blur(18px);
+      color: var(--text);
+      text-decoration: none;
+      display: grid;
+      place-items: center;
+      padding: 10px;
+      box-shadow: var(--shadow);
+    }
+
+    .shortcut span {
+      font-size: 13px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 100%;
+      white-space: nowrap;
+    }
+
+    .settings-row {
+      display: grid;
+      gap: 8px;
+      margin: 12px 0;
+    }
+
+    .switch-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.12);
+    }
+
+    .primary {
+      width: 100%;
+      padding: 12px;
+      border-radius: 16px;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,0.20);
+    }
+
+    .hidden { display: none !important; }
+
+
+    .focus-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 50;
+      display: none;
+      place-items: center;
+      padding: 24px;
+      background:
+        linear-gradient(135deg, rgba(0,0,0,0.70), rgba(0,0,0,0.38)),
+        var(--focus-bg, transparent);
+      backdrop-filter: blur(12px);
+    }
+
+    .focus-overlay.active {
+      display: grid;
+    }
+
+    .focus-box {
+      width: min(760px, 100%);
+      border-radius: 34px;
+      padding: 34px;
+      background: rgba(255,255,255,0.12);
+      border: 1px solid rgba(255,255,255,0.22);
+      box-shadow: var(--shadow);
+      text-align: center;
+    }
+
+    .focus-status {
+      display: inline-flex;
+      gap: 8px;
+      align-items: center;
+      padding: 9px 13px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.16);
+      color: var(--muted);
+      margin-bottom: 18px;
+      font-size: 13px;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .focus-timer {
+      font-size: clamp(72px, 15vw, 150px);
+      font-weight: 650;
+      line-height: 0.9;
+      letter-spacing: -0.08em;
+      margin: 8px 0;
+    }
+
+    .focus-task {
+      font-size: clamp(20px, 4vw, 34px);
+      color: var(--muted);
+      margin-bottom: 24px;
+    }
+
+    .focus-controls, .sound-grid, .wallpaper-grid {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 14px;
+    }
+
+    .focus-control-btn, .sound-btn, .wallpaper-btn {
+      padding: 12px 15px;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,0.14);
+    }
+
+    .sound-btn.active, .wallpaper-btn.active {
+      background: rgba(255,255,255,0.30);
+    }
+
+    .mini-label {
+      margin-top: 22px;
+      color: var(--muted);
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    .file-input {
+      width: 100%;
+      border: 1px dashed rgba(255,255,255,0.34);
+      border-radius: 16px;
+      padding: 12px;
+      margin: 8px 0 12px;
+      background: rgba(255,255,255,0.08);
+      color: var(--muted);
+    }
+
+    .range-row {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 10px;
+      align-items: center;
+      margin-top: 10px;
+    }
+
+    input[type="range"] {
+      width: 100%;
+    }
+
+    @media (max-width: 760px) {
+      .app { padding: 16px; }
+      .topbar, .bottombar { align-items: flex-start; }
+      .search-wrap { grid-template-columns: 1fr; }
+      .shortcut-grid { grid-template-columns: repeat(2, 1fr); }
+      .clock { letter-spacing: -0.06em; }
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <header class="topbar">
+      <div class="top-left">
+        <button class="chip" data-panel="linksPanel">Links</button>
+        <button class="chip" data-panel="notesPanel">Notes</button>
+        <button class="chip" id="focusModeBtn">Focus Mode</button>
+      </div>
+      <div class="top-right">
+        <span class="chip" id="weather">☁️ Set weather</span>
+        <button class="chip" data-panel="settingsPanel">Settings</button>
+      </div>
+    </header>
+
+    <section class="center">
+      <div class="clock" id="clock">00:00</div>
+      <div class="greeting" id="greeting">Good day</div>
+
+      <form class="search-wrap" id="searchForm">
+        <select id="searchEngine" aria-label="Search engine">
+          <option value="https://www.google.com/search?q=">Google</option>
+          <option value="https://www.bing.com/search?q=">Bing</option>
+          <option value="https://duckduckgo.com/?q=">DuckDuckGo</option>
+          <option value="https://www.youtube.com/results?search_query=">YouTube</option>
+        </select>
+        <input id="searchInput" placeholder="Search the web" autocomplete="off" />
+      </form>
+
+      <div class="focus-card" id="focusSection">
+        <div class="prompt">What is your main focus for today?</div>
+        <div class="focus-row">
+          <input class="clean-input" id="focusInput" placeholder="Type one clear priority" />
+          <button class="icon-btn" id="clearFocus" title="Clear focus" type="button">×</button>
+        </div>
+      </div>
+
+      <div class="shortcut-grid" id="shortcutGrid"></div>
+
+      <div class="quote" id="quote"></div>
+    </section>
+
+    <footer class="bottombar">
+      <div class="bottom-left">
+        <span class="chip" id="dateText"></span>
+      </div>
+      <div class="bottom-right">
+        <button class="chip" data-panel="tasksPanel">Tasks</button>
+      </div>
+    </footer>
+
+    <aside class="panels">
+      <section class="panel" id="tasksPanel">
+        <h2>Tasks</h2>
+        <form id="taskForm">
+          <input class="task-input" id="taskInput" placeholder="Add a task" />
+        </form>
+        <div class="task-list" id="taskList"></div>
+        <p class="tiny">Tip: click a task to mark it done.</p>
+      </section>
+
+      <section class="panel" id="linksPanel">
+        <h2>Links</h2>
+        <form id="linkForm">
+          <input class="task-input" id="linkName" placeholder="Name, e.g. Canvas" />
+          <input class="task-input" id="linkUrl" placeholder="URL, e.g. https://..." />
+          <button class="primary">Add link</button>
+        </form>
+        <div class="link-list" id="linkList"></div>
+      </section>
+
+      <section class="panel" id="notesPanel">
+        <h2>Notes</h2>
+        <textarea class="note-box" id="notes" placeholder="Quick notes"></textarea>
+      </section>
+
+      <section class="panel" id="settingsPanel">
+        <h2>Settings</h2>
+
+        <div class="settings-row">
+          <label class="tiny">Your name</label>
+          <input class="settings-input" id="nameSetting" placeholder="Your name" />
+        </div>
+
+        <div class="settings-row">
+          <label class="tiny">Weather text</label>
+          <input class="settings-input" id="weatherSetting" placeholder="Singapore, 30°C" />
+        </div>
+
+        <div class="settings-row">
+          <label class="tiny">Background</label>
+          <select class="settings-input" id="themeSetting">
+            <option value="ocean">Ocean</option>
+            <option value="dusk">Dusk</option>
+            <option value="forest">Forest</option>
+            <option value="mono">Mono</option>
+            <option value="photo">Daily photo</option>
+            <option value="custom">Custom wallpaper</option>
+          </select>
+        </div>
+
+        <div class="switch-row">
+          <span>24-hour clock</span>
+          <input type="checkbox" id="clockMode" />
+        </div>
+
+        <div class="switch-row">
+          <span>Show shortcuts</span>
+          <input type="checkbox" id="showShortcuts" checked />
+        </div>
+
+        <div class="switch-row">
+          <span>Show quote</span>
+          <input type="checkbox" id="showQuote" checked />
+        </div>
+
+
+        <div class="settings-row">
+          <label class="tiny">Pomodoro focus minutes</label>
+          <input class="settings-input" id="focusMinutesSetting" type="number" min="5" max="120" />
+        </div>
+
+        <div class="settings-row">
+          <label class="tiny">Wallpaper image URL</label>
+          <input class="settings-input" id="wallpaperUrlSetting" placeholder="Paste image URL" />
+        </div>
+
+        <div class="settings-row">
+          <label class="tiny">Upload wallpaper from your computer</label>
+          <input class="file-input" id="wallpaperUpload" type="file" accept="image/*" />
+        </div>
+
+        <div class="wallpaper-grid">
+          <button class="wallpaper-btn" data-wallpaper="ocean">Ocean</button>
+          <button class="wallpaper-btn" data-wallpaper="dusk">Dusk</button>
+          <button class="wallpaper-btn" data-wallpaper="forest">Forest</button>
+          <button class="wallpaper-btn" data-wallpaper="mono">Mono</button>
+          <button class="wallpaper-btn" data-wallpaper="photo">Daily photo</button>
+          <button class="wallpaper-btn" data-wallpaper="custom">Custom</button>
+        </div>
+
+        <button class="primary" id="resetBtn">Reset dashboard</button>
+      </section>
+    </aside>
+
+    <section class="focus-overlay" id="focusOverlay">
+      <div class="focus-box">
+        <div class="focus-status" id="focusStatus">Focusing</div>
+        <div class="focus-timer" id="focusTimer">25:00</div>
+        <div class="focus-task" id="focusTaskText">Your main focus</div>
+
+        <div class="focus-controls">
+          <button class="focus-control-btn" id="startFocusTimer">Start</button>
+          <button class="focus-control-btn" id="pauseFocusTimer">Pause</button>
+          <button class="focus-control-btn" id="resetFocusTimer">Reset</button>
+          <button class="focus-control-btn" id="exitFocusMode">Exit</button>
+        </div>
+
+        <div class="mini-label">Background sound</div>
+        <div class="sound-grid">
+          <button class="sound-btn" data-sound="none">Off</button>
+          <button class="sound-btn" data-sound="rain">Rain</button>
+          <button class="sound-btn" data-sound="forest">Forest</button>
+          <button class="sound-btn" data-sound="waves">Waves</button>
+          <button class="sound-btn" data-sound="lofi">Lo-fi</button>
+        </div>
+
+        <div class="range-row">
+          <input id="soundVolume" type="range" min="0" max="100" value="40" />
+          <span class="tiny" id="volumeText">40%</span>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <script>
+    const $ = (id) => document.getElementById(id);
+
+    const defaults = {
+      name: "",
+      focus: "",
+      weather: "Singapore, 30°C",
+      theme: "ocean",
+      clock24: true,
+      showShortcuts: true,
+      showQuote: true,
+      balance: false,
+      focusMinutes: 25,
+      focusSound: "none",
+      soundVolume: 40,
+      wallpaperUrl: "",
+      notes: "",
+      searchEngine: "https://www.google.com/search?q=",
+      tasks: [
+        { text: "Plan your day", done: false },
+        { text: "Clear one small task", done: false }
+      ],
+      links: [
+        { name: "Gmail", url: "https://mail.google.com" },
+        { name: "Calendar", url: "https://calendar.google.com" },
+        { name: "YouTube", url: "https://youtube.com" },
+        { name: "ChatGPT", url: "https://chatgpt.com" }
+      ]
+    };
+
+    const quotes = [
+      ["Focus on the step in front of you.", "Unknown"],
+      ["Simplicity is the ultimate sophistication.", "Leonardo da Vinci"],
+      ["The secret of getting ahead is getting started.", "Mark Twain"],
+      ["What you do today can improve all your tomorrows.", "Ralph Marston"],
+      ["Never overlook the power of simplicity.", "Robin Sharma"]
+    ];
+
+    const themes = {
+      ocean: ["#182848", "#4b6cb7"],
+      dusk: ["#42275a", "#734b6d"],
+      forest: ["#134e5e", "#71b280"],
+      mono: ["#232526", "#414345"]
+    };
+
+    const photoUrls = [
+      "url('https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1800&q=80')",
+      "url('https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1800&q=80')",
+      "url('https://images.unsplash.com/photo-1493246507139-91e8fad9978e?auto=format&fit=crop&w=1800&q=80')",
+      "url('https://images.unsplash.com/photo-1470770841072-f978cf4d019e?auto=format&fit=crop&w=1800&q=80')"
+    ];
+
+    const todayKey = new Date().toISOString().slice(0, 10);
+    const storeKey = "focusHomeData";
+    let data = load();
+
+    function load() {
+      const saved = localStorage.getItem(storeKey);
+      if (!saved) return structuredClone(defaults);
+      try {
+        return { ...structuredClone(defaults), ...JSON.parse(saved) };
+      } catch {
+        return structuredClone(defaults);
+      }
+    }
+
+    function save() {
+      localStorage.setItem(storeKey, JSON.stringify(data));
+    }
+
+    function updateClock() {
+      const now = new Date();
+      const h = now.getHours();
+      const m = String(now.getMinutes()).padStart(2, "0");
+      let hour = h;
+
+      if (!data.clock24) {
+        hour = h % 12 || 12;
+      } else {
+        hour = String(h).padStart(2, "0");
+      }
+
+      $("clock").textContent = `${hour}:${m}`;
+
+      const part = h < 12 ? "morning" : h < 18 ? "afternoon" : "evening";
+      $("greeting").textContent = data.name ? `Good ${part}, ${data.name}` : `Good ${part}`;
+      $("dateText").textContent = now.toLocaleDateString(undefined, {
+        weekday: "long",
+        month: "long",
+        day: "numeric"
+      });
+    }
+
+    function setTheme() {
+      document.body.classList.remove("image-bg");
+
+      if (data.theme === "photo") {
+        const index = Math.abs(hash(todayKey)) % photoUrls.length;
+        document.body.style.setProperty("--photo-url", photoUrls[index]);
+        document.body.style.setProperty("--focus-bg", photoUrls[index] + " center/cover fixed");
+        document.body.classList.add("image-bg");
+        return;
+      }
+
+      if (data.theme === "custom" && data.wallpaperUrl) {
+        const custom = `url('${data.wallpaperUrl}')`;
+        document.body.style.setProperty("--photo-url", custom);
+        document.body.style.setProperty("--focus-bg", custom + " center/cover fixed");
+        document.body.classList.add("image-bg");
+        return;
+      }
+
+      const [a, b] = themes[data.theme] || themes.ocean;
+      document.documentElement.style.setProperty("--bg1", a);
+      document.documentElement.style.setProperty("--bg2", b);
+      document.body.style.setProperty("--focus-bg", `linear-gradient(135deg, ${a}, ${b})`);
+    }
+
+    function hash(str) {
+      let h = 0;
+      for (let i = 0; i < str.length; i++) h = Math.imul(31, h) + str.charCodeAt(i) | 0;
+      return h;
+    }
+
+    function renderQuote() {
+      const [text, author] = quotes[Math.abs(hash(todayKey)) % quotes.length];
+      $("quote").textContent = data.showQuote ? `“${text}” — ${author}` : "";
+      $("quote").classList.toggle("hidden", !data.showQuote);
+    }
+
+    function renderShortcuts() {
+      $("shortcutGrid").classList.toggle("hidden", !data.showShortcuts);
+      $("shortcutGrid").innerHTML = data.links.slice(0, 8).map(link => `
+        <a class="shortcut" href="${safeUrl(link.url)}">
+          <span>${escapeHtml(link.name)}</span>
+        </a>
+      `).join("");
+    }
+
+    function renderLinksPanel() {
+      $("linkList").innerHTML = data.links.map((link, index) => `
+        <div class="link-item">
+          <span>↗</span>
+          <a href="${safeUrl(link.url)}" style="color:white;text-decoration:none">${escapeHtml(link.name)}</a>
+          <button class="icon-btn" onclick="removeLink(${index})">×</button>
+        </div>
+      `).join("");
+    }
+
+    function renderTasks() {
+      $("taskList").innerHTML = data.tasks.map((task, index) => `
+        <div class="task-item ${task.done ? "done" : ""}">
+          <input type="checkbox" ${task.done ? "checked" : ""} onchange="toggleTask(${index})">
+          <span onclick="toggleTask(${index})">${escapeHtml(task.text)}</span>
+          <button class="icon-btn" onclick="removeTask(${index})">×</button>
+        </div>
+      `).join("");
+    }
+
+    function renderSettings() {
+      $("nameSetting").value = data.name;
+      $("weatherSetting").value = data.weather;
+      $("themeSetting").value = data.theme === "custom" ? "photo" : data.theme;
+      $("focusMinutesSetting").value = data.focusMinutes;
+      $("wallpaperUrlSetting").value = data.wallpaperUrl;
+      $("soundVolume").value = data.soundVolume;
+      $("volumeText").textContent = `${data.soundVolume}%`;
+      $("clockMode").checked = data.clock24;
+      $("showShortcuts").checked = data.showShortcuts;
+      $("showQuote").checked = data.showQuote;
+      $("focusInput").value = data.focus;
+      $("notes").value = data.notes;
+      $("weather").textContent = `☁️ ${data.weather || "Set weather"}`;
+      $("searchEngine").value = data.searchEngine;
+      $("focusSection").style.opacity = data.balance ? "0.68" : "1";
+      updateSoundButtons();
+      updateWallpaperButtons();
+    }
+
+    function renderAll() {
+      setTheme();
+      updateClock();
+      renderQuote();
+      renderShortcuts();
+      renderLinksPanel();
+      renderTasks();
+      renderSettings();
+    }
+
+    function toggleTask(index) {
+      data.tasks[index].done = !data.tasks[index].done;
+      save();
+      renderTasks();
+    }
+
+    function removeTask(index) {
+      data.tasks.splice(index, 1);
+      save();
+      renderTasks();
+    }
+
+    function removeLink(index) {
+      data.links.splice(index, 1);
+      save();
+      renderLinksPanel();
+      renderShortcuts();
+    }
+
+    function safeUrl(url) {
+      if (!url) return "#";
+      if (url.startsWith("http://") || url.startsWith("https://")) return url;
+      return "https://" + url;
+    }
+
+    function escapeHtml(str) {
+      return String(str).replace(/[&<>"']/g, m => ({
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        '"': "&quot;",
+        "'": "&#039;"
+      }[m]));
+    }
+
+
+    let focusRemaining = data.focusMinutes * 60;
+    let focusInterval = null;
+    let audioCtx = null;
+    let soundNodes = [];
+
+    function updateFocusTimer() {
+      const mins = String(Math.floor(focusRemaining / 60)).padStart(2, "0");
+      const secs = String(focusRemaining % 60).padStart(2, "0");
+      $("focusTimer").textContent = `${mins}:${secs}`;
+      $("focusTaskText").textContent = data.focus || "Choose one clear priority";
+    }
+
+    function enterFocusMode() {
+      $("focusOverlay").classList.add("active");
+      focusRemaining = data.focusMinutes * 60;
+      updateFocusTimer();
+      playSound(data.focusSound);
+    }
+
+    function exitFocusMode() {
+      $("focusOverlay").classList.remove("active");
+      pauseFocusTimer();
+      stopSound();
+    }
+
+    function startFocusTimer() {
+      if (focusInterval) return;
+      $("focusStatus").textContent = "Focusing";
+      focusInterval = setInterval(() => {
+        focusRemaining -= 1;
+        if (focusRemaining <= 0) {
+          focusRemaining = 0;
+          pauseFocusTimer();
+          $("focusStatus").textContent = "Session complete";
+        }
+        updateFocusTimer();
+      }, 1000);
+      playSound(data.focusSound);
+    }
+
+    function pauseFocusTimer() {
+      clearInterval(focusInterval);
+      focusInterval = null;
+    }
+
+    function resetFocusTimer() {
+      pauseFocusTimer();
+      focusRemaining = data.focusMinutes * 60;
+      $("focusStatus").textContent = "Focusing";
+      updateFocusTimer();
+    }
+
+    function stopSound() {
+      soundNodes.forEach(node => {
+        try { node.stop && node.stop(); } catch {}
+        try { node.disconnect && node.disconnect(); } catch {}
+      });
+      soundNodes = [];
+    }
+
+    function getAudioContext() {
+      if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      if (audioCtx.state === "suspended") audioCtx.resume();
+      return audioCtx;
+    }
+
+    function playSound(type) {
+      stopSound();
+      if (type === "none") return;
+
+      const ctx = getAudioContext();
+      const gain = ctx.createGain();
+      gain.gain.value = data.soundVolume / 100 * 0.18;
+      gain.connect(ctx.destination);
+      soundNodes.push(gain);
+
+      if (type === "lofi") {
+        const notes = [261.63, 329.63, 392.0, 493.88];
+        let i = 0;
+        const interval = setInterval(() => {
+          const osc = ctx.createOscillator();
+          const noteGain = ctx.createGain();
+          osc.type = "sine";
+          osc.frequency.value = notes[i % notes.length] / 2;
+          noteGain.gain.setValueAtTime(0.0001, ctx.currentTime);
+          noteGain.gain.exponentialRampToValueAtTime(gain.gain.value, ctx.currentTime + 0.08);
+          noteGain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 1.2);
+          osc.connect(noteGain);
+          noteGain.connect(ctx.destination);
+          osc.start();
+          osc.stop(ctx.currentTime + 1.3);
+          i++;
+        }, 1400);
+        soundNodes.push({ stop: () => clearInterval(interval), disconnect: () => {} });
+        return;
+      }
+
+      const bufferSize = 2 * ctx.sampleRate;
+      const noiseBuffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+      const output = noiseBuffer.getChannelData(0);
+      for (let i = 0; i < bufferSize; i++) output[i] = Math.random() * 2 - 1;
+
+      const whiteNoise = ctx.createBufferSource();
+      whiteNoise.buffer = noiseBuffer;
+      whiteNoise.loop = true;
+
+      const filter = ctx.createBiquadFilter();
+      filter.type = type === "rain" ? "highpass" : "lowpass";
+      filter.frequency.value = type === "rain" ? 900 : type === "forest" ? 700 : 420;
+
+      const tremolo = ctx.createOscillator();
+      const tremoloGain = ctx.createGain();
+      tremolo.frequency.value = type === "waves" ? 0.12 : 0.5;
+      tremoloGain.gain.value = type === "waves" ? 0.08 : 0.03;
+      tremolo.connect(tremoloGain);
+      tremoloGain.connect(gain.gain);
+
+      whiteNoise.connect(filter);
+      filter.connect(gain);
+      whiteNoise.start();
+      tremolo.start();
+
+      soundNodes.push(whiteNoise, filter, tremolo, tremoloGain);
+    }
+
+    function updateSoundButtons() {
+      document.querySelectorAll(".sound-btn").forEach(btn => {
+        btn.classList.toggle("active", btn.dataset.sound === data.focusSound);
+      });
+    }
+
+    function updateWallpaperButtons() {
+      document.querySelectorAll(".wallpaper-btn").forEach(btn => {
+        btn.classList.toggle("active", btn.dataset.wallpaper === data.theme);
+      });
+    }
+
+    document.querySelectorAll("[data-panel]").forEach(btn => {
+      btn.addEventListener("click", () => {
+        const panel = $(btn.dataset.panel);
+        document.querySelectorAll(".panel").forEach(p => {
+          if (p !== panel) p.classList.remove("active");
+        });
+        panel.classList.toggle("active");
+      });
+    });
+
+    $("searchForm").addEventListener("submit", e => {
+      e.preventDefault();
+      const q = $("searchInput").value.trim();
+      if (!q) return;
+      window.location.href = data.searchEngine + encodeURIComponent(q);
+    });
+
+    $("searchEngine").addEventListener("change", e => {
+      data.searchEngine = e.target.value;
+      save();
+    });
+
+    $("focusInput").addEventListener("input", e => {
+      data.focus = e.target.value;
+      save();
+    });
+
+    $("clearFocus").addEventListener("click", () => {
+      data.focus = "";
+      save();
+      renderSettings();
+    });
+
+    $("taskForm").addEventListener("submit", e => {
+      e.preventDefault();
+      const text = $("taskInput").value.trim();
+      if (!text) return;
+      data.tasks.unshift({ text, done: false });
+      $("taskInput").value = "";
+      save();
+      renderTasks();
+    });
+
+    $("linkForm").addEventListener("submit", e => {
+      e.preventDefault();
+      const name = $("linkName").value.trim();
+      const url = $("linkUrl").value.trim();
+      if (!name || !url) return;
+      data.links.push({ name, url: safeUrl(url) });
+      $("linkName").value = "";
+      $("linkUrl").value = "";
+      save();
+      renderLinksPanel();
+      renderShortcuts();
+    });
+
+    $("notes").addEventListener("input", e => {
+      data.notes = e.target.value;
+      save();
+    });
+
+    $("nameSetting").addEventListener("input", e => {
+      data.name = e.target.value.trim();
+      save();
+      updateClock();
+    });
+
+    $("weatherSetting").addEventListener("input", e => {
+      data.weather = e.target.value.trim();
+      save();
+      renderSettings();
+    });
+
+    $("themeSetting").addEventListener("change", e => {
+      data.theme = e.target.value;
+      save();
+      setTheme();
+    });
+
+    $("clockMode").addEventListener("change", e => {
+      data.clock24 = e.target.checked;
+      save();
+      updateClock();
+    });
+
+    $("showShortcuts").addEventListener("change", e => {
+      data.showShortcuts = e.target.checked;
+      save();
+      renderShortcuts();
+    });
+
+    $("showQuote").addEventListener("change", e => {
+      data.showQuote = e.target.checked;
+      save();
+      renderQuote();
+    });
+
+    $("balanceBtn").addEventListener("click", () => {
+      data.balance = !data.balance;
+      save();
+      renderSettings();
+    });
+
+
+    $("focusModeBtn").addEventListener("click", enterFocusMode);
+    $("exitFocusMode").addEventListener("click", exitFocusMode);
+    $("startFocusTimer").addEventListener("click", startFocusTimer);
+    $("pauseFocusTimer").addEventListener("click", pauseFocusTimer);
+    $("resetFocusTimer").addEventListener("click", resetFocusTimer);
+
+    document.querySelectorAll(".sound-btn").forEach(btn => {
+      btn.addEventListener("click", () => {
+        data.focusSound = btn.dataset.sound;
+        save();
+        updateSoundButtons();
+        playSound(data.focusSound);
+      });
+    });
+
+    $("soundVolume").addEventListener("input", e => {
+      data.soundVolume = Number(e.target.value);
+      $("volumeText").textContent = `${data.soundVolume}%`;
+      save();
+      if (data.focusSound !== "none") playSound(data.focusSound);
+    });
+
+    $("focusMinutesSetting").addEventListener("input", e => {
+      data.focusMinutes = Math.max(5, Math.min(120, Number(e.target.value) || 25));
+      save();
+      resetFocusTimer();
+    });
+
+    $("wallpaperUrlSetting").addEventListener("change", e => {
+      data.wallpaperUrl = e.target.value.trim();
+      if (data.wallpaperUrl) data.theme = "custom";
+      save();
+      setTheme();
+      renderSettings();
+    });
+
+    $("wallpaperUpload").addEventListener("change", e => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = () => {
+        data.wallpaperUrl = reader.result;
+        data.theme = "custom";
+        save();
+        setTheme();
+        renderSettings();
+      };
+      reader.readAsDataURL(file);
+    });
+
+    document.querySelectorAll(".wallpaper-btn").forEach(btn => {
+      btn.addEventListener("click", () => {
+        data.theme = btn.dataset.wallpaper;
+        save();
+        setTheme();
+        renderSettings();
+      });
+    });
+
+    $("resetBtn").addEventListener("click", () => {
+      localStorage.removeItem(storeKey);
+      data = structuredClone(defaults);
+      renderAll();
+    });
+
+    window.toggleTask = toggleTask;
+    window.removeTask = removeTask;
+    window.removeLink = removeLink;
+
+    renderAll();
+    setInterval(updateClock, 1000);
+  </script>
 </body>
 </html>
