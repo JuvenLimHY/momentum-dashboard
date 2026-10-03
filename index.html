@@ -222,13 +222,22 @@ tailwind.config = { theme: { extend: { fontFamily: {
     </div>
     <h2 class="pointer-events-auto text-[clamp(1.5rem,3vw,3rem)] font-light mt-2 drop-shadow-md" x-text="greeting"></h2>
 
+    <!-- Search -->
+    <form class="pointer-events-auto w-full max-w-xl mt-6" x-show="state.widgets.search" role="search" @submit.prevent="runSearch()">
+      <div class="glass glass-solid flex items-center gap-2 pl-4 pr-2 py-1.5 !rounded-full focus-within:!border-white/50 transition">
+        <span class="text-white/60" x-html="icon('search','w-5 h-5')"></span>
+        <input id="search-input" type="search" class="flex-1 bg-transparent outline-none text-base py-2 placeholder-white/50 text-white" placeholder="Search Google…" x-model="searchQuery" aria-label="Search Google" autocomplete="off" maxlength="300">
+        <button type="submit" class="btn btn-primary !rounded-full !py-1.5" :disabled="!searchQuery.trim()">Search</button>
+      </div>
+    </form>
+
     <!-- Main focus -->
     <div class="pointer-events-auto w-full max-w-xl mt-8">
       <template x-if="!state.focus.mainGoal || editingFocus">
         <div>
           <p class="text-lg md:text-xl font-medium mb-3 drop-shadow-md" x-text="editingFocus ? 'Edit your focus' : 'What is your main focus today?'"></p>
           <div class="flex gap-2">
-            <input class="field !text-lg !py-3 text-center" placeholder="Type your focus…" x-model="focusDraft" maxlength="140" @keydown.enter="saveFocus()" x-init="$nextTick(() => $el.focus())" aria-label="Main focus">
+            <input class="field !text-lg !py-3 text-center" placeholder="Type your focus…" x-model="focusDraft" maxlength="140" @keydown.enter="saveFocus()" x-init="if (editingFocus) $nextTick(() => $el.focus())" aria-label="Main focus">
             <button class="btn btn-primary" @click="saveFocus()" aria-label="Save focus"><span x-html="icon('check','w-5 h-5')"></span></button>
             <button class="btn" x-show="editingFocus" @click="editingFocus = false" aria-label="Cancel"><span x-html="icon('x','w-5 h-5')"></span></button>
           </div>
@@ -705,6 +714,7 @@ const ICONS = {
   download: '<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/>',
   upload: '<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" x2="12" y1="3" y2="15"/>',
   image: '<rect width="18" height="18" x="3" y="3" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.09-3.09a2 2 0 0 0-2.82 0L6 21"/>',
+  search: '<circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>',
   flag: '<path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" x2="4" y1="22" y2="15"/>'
 };
 function icon(name, cls) {
@@ -792,7 +802,7 @@ function DEFAULT_STATE() {
     pomodoro: { workMinutes: 25, shortBreakMinutes: 5, longBreakMinutes: 15, cyclesBeforeLongBreak: 4, autoStartBreaks: false, autoStartFocus: false, soundVolume: 0.8 },
     media: { activeTab: 'spotify', spotifyUrl: 'https://open.spotify.com/playlist/37i9dQZF1DXcBWIGoYBM5M', youtubeUrl: 'https://www.youtube.com/watch?v=jfKfPfyJRdk', presets: [] },
     todo: { activeList: 'Today', lists: { Today: [], Inbox: [], Work: [], Personal: [] } },
-    widgets: { weather: true, clock: true, quotes: true, todo: true, notes: true, countdown: true, metrics: true, worldClock: true },
+    widgets: { weather: true, clock: true, quotes: true, todo: true, notes: true, countdown: true, metrics: true, worldClock: true, search: true },
     notes: { content: '' },
     countdown: { targetDate: '', title: '' },
     metrics: { count: 0, label: 'Pomodoros Completed' },
@@ -925,11 +935,12 @@ function app() {
     wallpaperModes: [{ key: 'dynamic', label: 'Dynamic' }, { key: 'custom', label: 'Custom URL' }, { key: 'minimal', label: 'Minimal' }],
     widgetList: [
       { key: 'weather', label: 'Weather' }, { key: 'clock', label: 'Clock' }, { key: 'quotes', label: 'Quotes' }, { key: 'todo', label: 'To-Do' },
-      { key: 'notes', label: 'Notes' }, { key: 'countdown', label: 'Countdown' }, { key: 'metrics', label: 'Metrics' }, { key: 'worldClock', label: 'World Clock' }
+      { key: 'notes', label: 'Notes' }, { key: 'countdown', label: 'Countdown' }, { key: 'metrics', label: 'Metrics' }, { key: 'worldClock', label: 'World Clock' }, { key: 'search', label: 'Search bar' }
     ],
     phases: [{ key: 'WORK', label: 'Focus' }, { key: 'SHORT_BREAK', label: 'Short break' }, { key: 'LONG_BREAK', label: 'Long break' }],
 
     quote: QUOTES[0],
+    searchQuery: '',
     focusDraft: '', editingFocus: false,
     linkDraft: { title: '', url: '' }, linksEditing: false,
     wcDraft: '',
@@ -960,6 +971,8 @@ function app() {
       this.$watch('dockVisible', v => { if (v) this.mediaEverOpened = true; });
       this.$watch('ui.focus', () => { if (this.dockVisible) this.mediaEverOpened = true; });
       this.applyWallpaper();
+      this.focusSearch();
+      window.addEventListener('focus', () => { if (!this.panel && !this.ui.focus && !document.activeElement.closest('input,textarea,select')) this.focusSearch(); });
       this.loadWeather();
       setInterval(() => this.loadWeather(), 15 * 60 * 1000);
       document.addEventListener('visibilitychange', () => { if (!document.hidden) this.tickPomo(); });
@@ -1087,6 +1100,13 @@ function app() {
       this.state.focus.completed = false;
       this.state.todo.lists[name] = list.filter(t => t.id !== next.id);
       this.toast('Next up: ' + next.text, 'success');
+    },
+
+    focusSearch() { this.$nextTick(() => { const el = document.getElementById('search-input'); if (el && this.state.widgets.search && el.offsetParent !== null) el.focus({ preventScroll: true }); }); },
+    runSearch() {
+      const q = this.searchQuery.trim(); if (!q) return;
+      window.open('https://www.google.com/search?q=' + encodeURIComponent(q), '_blank', 'noopener');
+      this.searchQuery = '';
     },
 
     /* ---------- links ---------- */
