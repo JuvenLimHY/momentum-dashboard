@@ -313,6 +313,7 @@ tailwind.config = { theme: { extend: { fontFamily: {
       <button class="glass p-3 hover:bg-white/10 transition" @click="togglePanel('settings')" aria-label="Settings" title="Settings"><span x-html="icon('settings','w-5 h-5')"></span></button>
       <button class="glass p-3 hover:bg-white/10 transition" x-show="state.widgets.notes" @click="togglePanel('notes')" aria-label="Notes" title="Notes"><span x-html="icon('notes','w-5 h-5')"></span></button>
       <button class="glass p-3 hover:bg-white/10 transition" @click="togglePanel('media')" aria-label="Music" title="Music"><span x-html="icon('music','w-5 h-5')"></span></button>
+      <button class="glass p-3 hover:bg-white/10 transition" @click="openPip()" aria-label="Pop out timer" title="Pop out timer"><span x-html="icon('popout','w-5 h-5')"></span></button>
     </div>
 
     <div class="glass px-5 py-3 max-w-2xl text-center pointer-events-auto hidden md:block" x-show="state.widgets.quotes">
@@ -347,6 +348,7 @@ tailwind.config = { theme: { extend: { fontFamily: {
       </template>
     </div>
     <div class="flex gap-2">
+      <button class="btn" @click="openPip()" title="Float the timer in its own window"><span x-html="icon('popout','w-4 h-4')"></span>Pop out</button>
       <button class="btn" @click="ui.dockCollapsed = !ui.dockCollapsed"><span x-html="icon('music','w-4 h-4')"></span><span x-text="ui.dockCollapsed ? 'Show music' : 'Hide music'"></span></button>
       <button class="icon-btn glass !p-2.5" @click="togglePanel('settings')" aria-label="Settings"><span x-html="icon('settings','w-5 h-5')"></span></button>
       <button class="btn btn-primary" @click="exitFocus()"><span x-html="icon('x','w-4 h-4')"></span>Exit</button>
@@ -715,6 +717,7 @@ const ICONS = {
   upload: '<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" x2="12" y1="3" y2="15"/>',
   image: '<rect width="18" height="18" x="3" y="3" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.09-3.09a2 2 0 0 0-2.82 0L6 21"/>',
   search: '<circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>',
+  popout: '<path d="M21 9V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v10c0 1.1.9 2 2 2h4"/><rect width="10" height="7" x="12" y="13" rx="2"/>',
   flag: '<path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" x2="4" y1="22" y2="15"/>'
 };
 function icon(name, cls) {
@@ -802,7 +805,7 @@ function DEFAULT_STATE() {
     pomodoro: { workMinutes: 25, shortBreakMinutes: 5, longBreakMinutes: 15, cyclesBeforeLongBreak: 4, autoStartBreaks: false, autoStartFocus: false, soundVolume: 0.8 },
     media: { activeTab: 'spotify', spotifyUrl: 'https://open.spotify.com/playlist/37i9dQZF1DXcBWIGoYBM5M', youtubeUrl: 'https://www.youtube.com/watch?v=jfKfPfyJRdk', presets: [] },
     todo: { activeList: 'Today', lists: { Today: [], Inbox: [], Work: [], Personal: [] } },
-    widgets: { weather: true, clock: true, quotes: true, todo: true, notes: true, countdown: true, metrics: true, worldClock: true, search: true },
+    widgets: { weather: true, clock: true, quotes: true, todo: true, notes: true, countdown: true, metrics: true, worldClock: true, search: false },
     notes: { content: '' },
     countdown: { targetDate: '', title: '' },
     metrics: { count: 0, label: 'Pomodoros Completed' },
@@ -873,7 +876,7 @@ function sanitizeState(raw) {
   s.todo.activeList = Object.prototype.hasOwnProperty.call(s.todo.lists, td.activeList) ? td.activeList : Object.keys(s.todo.lists)[0];
 
   const w = obj(raw.widgets);
-  Object.keys(s.widgets).forEach(k => { s.widgets[k] = bool(w[k], true); });
+  Object.keys(s.widgets).forEach(k => { s.widgets[k] = bool(w[k], s.widgets[k]); });
 
   s.notes.content = str(obj(raw.notes).content, '').slice(0, 200000);
   const c = obj(raw.countdown);
@@ -941,6 +944,7 @@ function app() {
 
     quote: QUOTES[0],
     searchQuery: '',
+    pipWin: null, _pipTimer: null,
     focusDraft: '', editingFocus: false,
     linkDraft: { title: '', url: '' }, linksEditing: false,
     wcDraft: '',
@@ -970,6 +974,7 @@ function app() {
       this.$watch('state.wallpaper.mode', () => this.applyWallpaper());
       this.$watch('dockVisible', v => { if (v) this.mediaEverOpened = true; });
       this.$watch('ui.focus', () => { if (this.dockVisible) this.mediaEverOpened = true; });
+      window.addEventListener('pagehide', () => this.closePip());
       this.applyWallpaper();
       this.focusSearch();
       window.addEventListener('focus', () => { if (!this.panel && !this.ui.focus && !document.activeElement.closest('input,textarea,select')) this.focusSearch(); });
@@ -1103,6 +1108,75 @@ function app() {
     },
 
     focusSearch() { this.$nextTick(() => { const el = document.getElementById('search-input'); if (el && this.state.widgets.search && el.offsetParent !== null) el.focus({ preventScroll: true }); }); },
+    /* ---------- pop-out timer window ---------- */
+    async openPip() {
+      if (this.pipWin && !this.pipWin.closed) { try { this.pipWin.focus(); } catch (e) {} return; }
+      let w = null;
+      try {
+        if ('documentPictureInPicture' in window) w = await window.documentPictureInPicture.requestWindow({ width: 320, height: 430 });
+      } catch (e) { w = null; }
+      if (!w) w = window.open('', 'momentum-timer', 'popup=yes,width=340,height=450');
+      if (!w) { this.toast('Your browser blocked the pop-out window. Allow pop-ups for this page.', 'error'); return; }
+      this.pipWin = w;
+      this.buildPip(w);
+      w.addEventListener('pagehide', () => this.closePip());
+      this._pipTimer = w.setInterval(() => { this.tickPomo(); this.renderPip(); }, 250);
+      this.renderPip();
+    },
+    closePip() {
+      if (this._pipTimer && this.pipWin) { try { this.pipWin.clearInterval(this._pipTimer); } catch (e) {} }
+      this._pipTimer = null;
+      const w = this.pipWin; this.pipWin = null;
+      if (w && !w.closed) { try { w.close(); } catch (e) {} }
+    },
+    buildPip(w) {
+      const d = w.document;
+      d.title = 'Momentum timer';
+      d.head.innerHTML = '<meta charset="UTF-8"><style>' +
+        '*{box-sizing:border-box}body{margin:0;min-height:100vh;background:#0b0b0d;color:#fff;font-family:Inter,system-ui,sans-serif;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:16px;text-align:center}' +
+        '.ring{position:relative;width:min(220px,70vw);aspect-ratio:1}.ring svg{width:100%;height:100%}' +
+        '.ring .c{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}' +
+        '#pp-time{font-size:clamp(2rem,16vw,3rem);font-weight:600;font-variant-numeric:tabular-nums;line-height:1}' +
+        '#pp-phase{font-size:.7rem;letter-spacing:.22em;text-transform:uppercase;color:rgba(255,255,255,.65);margin-top:6px}' +
+        '.row{display:flex;gap:10px;align-items:center}' +
+        'button{font:inherit;cursor:pointer;border:0;border-radius:10px;padding:9px 14px;background:rgba(255,255,255,.12);color:#fff}button:hover{background:rgba(255,255,255,.22)}' +
+        '#pp-toggle{background:#fff;color:#000;font-weight:600;padding:9px 22px}#pp-toggle:hover{background:rgba(255,255,255,.85)}' +
+        '.task{display:flex;gap:10px;align-items:center;max-width:100%;background:rgba(255,255,255,.07);border-radius:12px;padding:10px 12px}' +
+        '#pp-task{font-size:.9rem;font-weight:500;overflow-wrap:anywhere}.done{text-decoration:line-through;opacity:.55}' +
+        '#pp-check{width:20px;height:20px;padding:0;border-radius:6px;border:2px solid rgba(255,255,255,.7);background:transparent;flex:none;display:flex;align-items:center;justify-content:center;font-size:12px;line-height:1}' +
+        '#pp-sess{font-size:.72rem;color:rgba(255,255,255,.5)}' +
+        '</style>';
+      d.body.innerHTML =
+        '<div class="ring"><svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="45" fill="none" stroke="rgba(255,255,255,.15)" stroke-width="4"/>' +
+        '<circle id="pp-ring" cx="50" cy="50" r="45" fill="none" stroke-width="4" stroke-linecap="round" transform="rotate(-90 50 50)" stroke-dasharray="' + RING_C + '"/></svg>' +
+        '<div class="c"><div id="pp-time">25:00</div><div id="pp-phase">Focus</div></div></div>' +
+        '<div class="row"><button id="pp-reset" aria-label="Reset">&#8634;</button><button id="pp-toggle">Start</button><button id="pp-skip" aria-label="Skip">&#9197;</button></div>' +
+        '<div class="task" id="pp-taskrow"><button id="pp-check" aria-label="Mark focus complete"></button><span id="pp-task"></span></div>' +
+        '<div id="pp-sess"></div>';
+      d.getElementById('pp-toggle').addEventListener('click', () => this.toggleTimer());
+      d.getElementById('pp-reset').addEventListener('click', () => this.resetTimer());
+      d.getElementById('pp-skip').addEventListener('click', () => this.skipPhase());
+      d.getElementById('pp-check').addEventListener('click', () => this.toggleFocusComplete());
+    },
+    renderPip() {
+      const w = this.pipWin;
+      if (!w || w.closed) { if (w) this.closePip(); return; }
+      const d = w.document, $ = id => d.getElementById(id);
+      if (!$('pp-time')) return;
+      $('pp-time').textContent = this.timeLeftText;
+      $('pp-phase').textContent = this.statusText;
+      const ring = $('pp-ring');
+      ring.setAttribute('stroke', this.phaseColor);
+      ring.setAttribute('stroke-dashoffset', String(RING_C * (1 - this.pomo.frac)));
+      $('pp-toggle').textContent = this.running ? 'Pause' : (this.pomo.status === 'PAUSED' ? 'Resume' : 'Start');
+      const goal = this.state.focus.mainGoal;
+      $('pp-task').textContent = goal || 'No focus set';
+      $('pp-task').className = goal && this.state.focus.completed ? 'done' : '';
+      $('pp-check').textContent = goal && this.state.focus.completed ? '\u2713' : '';
+      $('pp-taskrow').style.display = goal ? 'flex' : 'none';
+      $('pp-sess').textContent = this.sessionLabel;
+    },
+
     runSearch() {
       const q = this.searchQuery.trim(); if (!q) return;
       window.open('https://www.google.com/search?q=' + encodeURIComponent(q), '_blank', 'noopener');
